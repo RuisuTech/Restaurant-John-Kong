@@ -39,17 +39,17 @@ Permitir que los **clientes** puedan registrarse, iniciar sesión y realizar res
 
 ```bash
     /src
-        ├── /assets
-        ├── /components
-        ├── /pages
-        │ ├── /Cliente
-        │ └── /Admin
-        ├── /controllers
-        ├── /models
-        ├── /routes
-        ├── /styles
-        ├── App.jsx
-        └── main.jsx
+    ├── /assets
+    ├── /components
+    ├── /pages
+    │ ├── /Cliente
+    │ └── /Admin
+    ├── /controllers
+    ├── /models
+    ├── /routes
+    ├── /styles
+    ├── App.jsx
+    └── main.jsx
 ```
 
 
