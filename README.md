@@ -61,9 +61,9 @@ Permitir que los **clientes** puedan registrarse, iniciar sesión y realizar res
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tu-usuario/john-khon.git
+    git clone https://github.com/tu-usuario/john-khon.git
     npm install
-   npm run dev
+    npm run dev
    ```
 
 ## 🧪 Estado del Proyecto
