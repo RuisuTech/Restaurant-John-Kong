@@ -38,20 +38,21 @@ Permitir que los **clientes** puedan registrarse, iniciar sesión y realizar res
 ## 📁 Estructura de Carpetas (propuesta)
 
 ```bash
-    ├── /assets
-    ├── /components
-    ├── /pages
-    │ ├── /Cliente
-    │ └── /Admin
-    ├── /controllers
-    ├── /models
-    ├── /routes
-    ├── /styles
-    ├── App.jsx
-    └── main.jsx
+    /src
+        ├── /assets
+        ├── /components
+        ├── /pages
+        │ ├── /Cliente
+        │ └── /Admin
+        ├── /controllers
+        ├── /models
+        ├── /routes
+        ├── /styles
+        ├── App.jsx
+        └── main.jsx
 ```
 
-/src
+
 
 ---
 
