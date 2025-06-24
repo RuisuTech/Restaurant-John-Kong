@@ -9,10 +9,8 @@ import Admin from "./pages/Admin/Admin";
 import Cliente from "./pages/Cliente/Cliente";
 import RutaPrivada from "./routes/RutaPrivada";
 import ToggleTema from "./components/ToggleTema"; // Nuevo botón
-import { useTema } from "./hooks/useTema"; // Hook de tema
 
 function App() {
-  const { modo } = useTema(); // Lee modo actual
 
   return (
     <>

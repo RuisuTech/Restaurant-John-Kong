@@ -1,11 +1,16 @@
 // src/components/Fondo.jsx
-function Fondo({ imageUrl, children }) {
+function Fondo({ imageUrl, children, className }) {
+
   return (
-    <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center px-4 "
-      style={{ backgroundImage: `url(${imageUrl})` }}
-    >
-      {children}
+    <div className={`relative min-h-screen flex items-center justify-center px-4 `}>
+      <div
+        className={`absolute inset-0 bg-cover bg-center ${className}`}
+        style={{ backgroundImage: `url(${imageUrl})` }}
+      ></div>
+
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 }

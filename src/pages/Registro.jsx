@@ -59,7 +59,7 @@ function Registro() {
         titulo="Registro de Cliente"
         subtitulo="Crear una cuenta nueva"
         descripcion="Crea tu cuenta para comenzar. Solo te tomará un momento."
-        tituloSize="text-4xl"
+        tituloSize="text-3xl"
         subtituloSize="text-lg"
         descripcionSize="text-sm"
         textAlign="text-center"
@@ -70,40 +70,41 @@ function Registro() {
           <input
             type="text"
             placeholder="Nombre completo"
-            className="w-full mb-4 p-3 bg-transparent border border-gray-400 rounded text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
+            className="w-full mb-4 p-3 bg-transparent border border-gray-400 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
           />
           <input
             type="email"
             placeholder="Correo electrónico"
-            className="w-full mb-4 p-3 bg-transparent border border-gray-400 rounded text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
+            className="w-full mb-4 p-3 bg-transparent border border-gray-400 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
           />
           <input
             type="password"
             placeholder="Contraseña"
-            className="w-full mb-1 p-3 bg-transparent border border-gray-400 rounded text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
+            className="w-full mb-1 p-3 bg-transparent border border-gray-400 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <p className="text-xs mb-4 text-gray-200">
+          <p className="text-xs mb-4 text-black dark:text-gray-200">
             Debe tener al menos 8 caracteres y combinar letras, números o
             símbolos.
           </p>
           <input
             type="password"
             placeholder="Confirmar contraseña"
-            className="w-full mb-6 p-3 bg-transparent border border-gray-400 rounded text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
+            className="w-full mb-6 p-3 bg-transparent border border-gray-400 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
             value={confirmar}
             onChange={(e) => setConfirmar(e.target.value)}
           />
           <Boton
-            texto="Registrarme"
+            children="Registrarme"
             ruta=""
             bgColor="bg-green-600"
             textColor="text-white"
+            className="h-[50px] w-full"
             onClickOverride={registrar}
           />
         </form>

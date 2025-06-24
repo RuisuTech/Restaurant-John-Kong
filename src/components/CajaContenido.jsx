@@ -7,15 +7,18 @@ function CajaContenido({
   subtituloSize = "text-xl",
   descripcionSize = "text-sm",
   textAlign = "text-center",
+  className = "w-full md:w-[450px]"
 }) {
   return (
     <div
-      className={`max-w-xl w-full px-6 py-10 rounded-lg shadow-lg ${textAlign}
+      className={`${className} px-6 py-10 rounded-lg shadow-lg ${textAlign}
     bg-white/85 text-gray-900
     dark:bg-black/60 dark:text-white transition-colors duration-300`}
     >
       {titulo && (
-        <h2 className={`${tituloSize} font-extrabold mb-2`}>{titulo}</h2>
+        <h2 className={`${tituloSize} font-[Mulish] font-extrabold mb-2`}>
+          {titulo}
+        </h2>
       )}
       {subtitulo && (
         <h3 className={`${subtituloSize} font-semibold mb-2`}>{subtitulo}</h3>
@@ -25,7 +28,7 @@ function CajaContenido({
       )}
       {children}
     </div>
-  );
+  )
 }
 
-export default CajaContenido;
+export default CajaContenido

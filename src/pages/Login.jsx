@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usuarios } from "../utils/usuarios";
 import logo from "../assets/logo.png";
+import logoWhite from "../assets/logo-white.png";
 import fondoLogin from "../assets/fondo.webp";
 import Fondo from "../components/Fondo";
 import CajaContenido from "../components/CajaContenido";
 import Boton from "../components/Boton";
 import LinkSpan from "../components/LinkSpan";
+import { useTema } from "../hooks/useTema"; 
 
 function Login() {
   const navigate = useNavigate();
@@ -43,6 +45,7 @@ function Login() {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const { modo } = useTema();
 
   const handleLogin = () => {
     const usuariosLocales = JSON.parse(localStorage.getItem("usuarios")) || [];
@@ -70,25 +73,24 @@ function Login() {
     <Fondo imageUrl={fondoLogin}>
       <CajaContenido
         titulo="Iniciar Sesión"
-        tituloSize="text-4xl"
+        tituloSize="text-3xl"
         textAlign="text-center"
       >
-        <div className="flex justify-center mb-6">
-          <img src={logo} alt="Logo" className="h-70" />
+        <div className="flex justify-center my-10 mb-14">
+          <img src={modo === "oscuro" ? logoWhite : logo } alt="Logo" className="h-24" />
         </div>
-
         {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin}> 
           <input
-            className="w-full mb-4 p-3 bg-transparent border border-gray-400 rounded text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
+            className="w-full mb-4 p-3 bg-transparent rounded-xl border border-gray-400 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
             type="email"
             placeholder="Correo electrónico"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
           />
           <input
-            className="w-full mb-2 p-3 bg-transparent border border-gray-400 rounded text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
+            className="w-full mb-2 p-3 bg-transparent border border-gray-400 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
             type="password"
             placeholder="Contraseña"
             value={password}
@@ -100,19 +102,21 @@ function Login() {
             </LinkSpan>
           </div>
           <Boton
-            texto="Iniciar Sesión"
+            children="Iniciar Sesión"
             bgColor="bg-green-500 dark:bg-green-600"
             textColor="text-white dark:text-black"
+            className="h-[50px] w-full"
             onClickOverride={handleLogin}
           />
         </form>
 
         <div className="mt-4">
           <Boton
-            texto="Acceder con Google"
+            children="Acceder con Google"
             onClickOverride={accederConGoogle}
             bgColor="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-600"
             textColor="text-white dark:text-black"
+            className="h-[50px] w-full"
           />
         </div>
 
