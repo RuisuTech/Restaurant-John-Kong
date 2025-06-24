@@ -1,7 +1,13 @@
-// src/components/Boton.jsx
 import { useNavigate } from "react-router-dom";
 
-function Boton({ texto, ruta = "", bgColor = "bg-green-600", textColor = "text-white", onClickOverride }) {
+function Boton({
+  children,
+  ruta = "",
+  bgColor = "bg-green-600",
+  textColor = "text-white",
+  onClickOverride,
+  className = "w-full",
+}) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -15,11 +21,11 @@ function Boton({ texto, ruta = "", bgColor = "bg-green-600", textColor = "text-w
   return (
     <button
       onClick={handleClick}
-      className={`w-full px-6 py-2 rounded font-medium transition 
+      className={`px-6 py-2 rounded-xl font-medium transition 
         ${bgColor} ${textColor} hover:opacity-90 
-        dark:hover:opacity-95`}
+        dark:hover:opacity-95 ${className}`}
     >
-      {texto}
+      {children}
     </button>
   );
 }

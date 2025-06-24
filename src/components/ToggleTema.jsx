@@ -1,4 +1,4 @@
-import { useTema } from "../hooks/useTema";
+import { useTema } from "../hooks/useTema"; 
 
 function ToggleTema({ onLogout }) {
   const { modo, alternar } = useTema();

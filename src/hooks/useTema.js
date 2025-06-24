@@ -1,22 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext } from "react";
+import { TemaContext } from "../context/TemaContext";
 
 export function useTema() {
-  const [modo, setModo] = useState("claro");
-
-  useEffect(() => {
-    const almacenado = localStorage.getItem("tema");
-    if (almacenado) setModo(almacenado);
-  }, []);
-
-  useEffect(() => {
-    const html = document.documentElement;
-    html.classList.toggle("dark", modo === "oscuro");
-    localStorage.setItem("tema", modo);
-  }, [modo]);
-
-  const alternar = () => {
-    setModo((prev) => (prev === "oscuro" ? "claro" : "oscuro"));
-  };
-
-  return { modo, alternar };
+  return useContext(TemaContext);
 }
