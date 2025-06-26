@@ -1,35 +1,41 @@
-// src/components/ModalConfirmacion.jsx
+import ModalBase from "./ModalBase";
+import Boton from "./Boton";
+
+// Modal de confirmación reutilizable con botones para aceptar o cancelar
 function ModalConfirmacion({
-  mensaje = "¿Estás seguro?",
-  descripcion,
-  textoAceptar = "Sí",
-  textoCancelar = "Cancelar",
-  onConfirmar,
-  onCancelar
+  mensaje = "¿Estás seguro?",     // Título principal del modal
+  descripcion,                    // Texto opcional con más detalles
+  textoAceptar = "Sí",            // Texto del botón de confirmación
+  textoCancelar = "Cancelar",     // Texto del botón de cancelación
+  onConfirmar,                    // Función a ejecutar al confirmar
+  onCancelar,                     // Función a ejecutar al cancelar
 }) {
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-black/80 rounded-xl shadow-2xl p-8 w-full max-w-sm text-center transition-colors">
-        <div className="text-yellow-500 text-5xl mb-4">!</div>
-        <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">{mensaje}</h2>
-        {descripcion && <p className="text-gray-600 dark:text-gray-300 mb-6">{descripcion}</p>}
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={onCancelar}
-            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-          >
-            {textoCancelar}
-          </button>
-          <button
-            onClick={onConfirmar}
-            className="px-4 py-2 rounded bg-yellow-500 hover:bg-yellow-600 text-white dark:bg-yellow-400 dark:text-black dark:hover:bg-yellow-500"
-          >
-            {textoAceptar}
-          </button>
-        </div>
+    <ModalBase
+      icono="!"                              // Icono de advertencia
+      iconoColor="text-yellow-500"          // Color del icono
+      titulo={mensaje}                      // Muestra el mensaje como título
+      descripcion={descripcion}             // Muestra la descripción debajo
+    >
+      {/* Botones de acción */}
+      <div className="flex justify-center gap-4">
+        <Boton
+          texto={textoCancelar}             // Botón para cancelar
+          onClickOverride={onCancelar}
+          bgColor="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600"
+          textColor="text-black dark:text-white"
+          className="px-4 py-2 w-auto"
+        />
+        <Boton
+          texto={textoAceptar}              // Botón para confirmar
+          onClickOverride={onConfirmar}
+          bgColor="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-400 dark:hover:bg-yellow-500"
+          textColor="text-white dark:text-black"
+          className="px-4 py-2 w-auto"
+        />
       </div>
-    </div>
+    </ModalBase>
   );
 }
 
-export default ModalConfirmacion;
+export default ModalConfirmacion; // Exporta el modal para usarlo donde se necesiten confirmaciones

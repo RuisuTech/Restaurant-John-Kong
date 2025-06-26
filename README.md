@@ -1,100 +1,161 @@
-# 🗓️ John Khon – Aplicación Web de Reservas
+# IDAT - Desarrollo de Interfaces 2  
+## Sistema de Reservas — Restaurant John Khon
 
-**John Khon** es una aplicación web de reservas desarrollada como proyecto educativo. Está enfocada en ofrecer una experiencia clara y rápida para **clientes** y **administradores**, usando únicamente tecnologías frontend.
+## 1. Prerrequisitos
+Para ejecutar este proyecto localmente, asegúrate de tener instalado lo siguiente:
 
-## 🚀 Objetivo
+- **Node.js ≥ 18**
+- **npm ≥ 9**
 
-Permitir que los **clientes** puedan registrarse, iniciar sesión y realizar reservas de fechas disponibles, y que los **administradores** puedan gestionar visualmente las reservas a través de un calendario.
-
----
-
-## 👨‍💻 Tecnologías Usadas
-
-- [React.js](https://reactjs.org/)
-- [Vite](https://vitejs.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [React Router DOM](https://reactrouter.com/)
-- Almacenamiento en `localStorage` (simulado)
-
----
-
-## 🧠 Funcionalidades
-
-### 👤 Cliente
-
-- Registro
-- Inicio de sesión
-- Recuperación de contraseña (simulada)
-- Realizar reserva
-- Consultar historial
-
-### 🛠️ Administrador
-
-- Inicio de sesión
-- Visualización de reservas en un calendario
-
----
-
-## 📁 Estructura de Carpetas (propuesta)
+## 2. Instalación
+Clona el repositorio y ejecuta la instalación de dependencias con los siguientes comandos:
 
 ```bash
-    /src
-    ├── /assets
-    ├── /components
-    ├── /pages
-    │ ├── /Cliente
-    │ └── /Admin
-    ├── /controllers
-    ├── /models
-    ├── /routes
-    ├── /styles
-    ├── App.jsx
-    └── main.jsx
+git clone https://github.com/RuisuTech/Restaurant-John-Khon.git
+cd Restaurant-John-Khon
+npm install
 ```
 
+## 3. Ejecución en modo desarrollo
+Para iniciar el servidor de desarrollo y acceder a la aplicación:
 
+```bash
+npm run dev
+```
+
+Luego abre tu navegador en:  
+👉 **http://localhost:5173**
+
+## 4. Estructura de carpetas (abreviada)
+
+```
+src/
+├── assets/          # Imágenes y fondo
+├── components/      # Botones, calendario, horarios, cajas, modales
+├── context/         # Contexto global de usuario
+├── hooks/           # Custom hooks (si se añaden)
+├── pages/
+│   ├── admin/       # Panel de control, calendario
+│   └── cliente/     # Reservas, historial
+├── routes/          # Rutas protegidas y públicas
+├── utils/           # Funciones reutilizables (fechas, validaciones)
+├── App.jsx
+└── main.jsx
+```
+
+## 5. Créditos
+
+| Integrante                 | Código      | Rol             |
+|----------------------------|-------------|-----------------|
+| Jose Luis Osorio Guzman    | IV73466355  | Frontend        |
 
 ---
 
-## ⚙️ Instalación y Ejecución Local
+## 📌 Descripción del proyecto
 
-1. Clona el repositorio:
+**John Khon** es una aplicación web para la gestión de reservas en un restaurante, desarrollada como proyecto educativo.  
+Está centrada en brindar una experiencia intuitiva tanto para clientes como para administradores, usando solamente tecnologías de frontend.
 
-   ```bash
-    git clone https://github.com/tu-usuario/john-khon.git
-    npm install
-    npm run dev
-   ```
-
-## 🧪 Estado del Proyecto
-
-- [x] Diseño UI en Figma
-- [x] Configuración del entorno (React + Vite)
-- [ ] Autenticación básica con `localStorage`
-- [ ] Formularios funcionales
-- [ ] Lógica de reservas
-- [ ] Calendario para administrador
+**Objetivo**:  
+Resolver el problema de organización de reservas y evitar la sobreposición de horarios, brindando al usuario la posibilidad de elegir entre servicio de almuerzo o cena, con horarios y estados claros.
 
 ---
 
-## 🧑‍🤝‍🧑 Equipo de Desarrollo
+## 🎯 ¿Cómo funciona la reserva de horas?
 
-    | Nombre       | Rol                  |
-    | ------------ | -------------------- |
-    | Integrante 1 | Coordinación general |
-    | Integrante 2 | UI / Componentes     |
-    | Integrante 3 | Lógica / Controlador |
-    | Integrante 4 | Rutas y navegación   |
+Los clientes pueden reservar un servicio de:
+
+- 🥗 **Almuerzo**: 11:00 a 16:00
+- 🌙 **Cena**: 18:00 a 23:00
+
+Cada reserva incluye:
+
+- Tipo de servicio
+- Número de personas
+- Fecha y hora
+- Comentario adicional
+
+El sistema muestra solo las horas disponibles y evita que se pueda reservar en una hora ya ocupada.  
+Se verifica cada reserva antes de confirmarla para evitar duplicados por fecha + hora.
 
 ---
 
-## 🔀 Flujo de Trabajo con Git
+## 📅 Interfaz del calendario
 
-1. Crea una nueva rama desde `main`:
+- 🟩 El día seleccionado se pinta de **verde**
+- 🟥 Un día se pinta **rojo** solo si **todas las horas están ocupadas**
+- 🟦 El día actual tiene un borde especial
+- Las horas ya ocupadas se muestran en rojo y no son clicables
 
-   ```bash
-   git checkout -b feat/nombre-de-la-tarea
-   git add .
-   git commit -m "feat: añade formulario de reserva"
-   git push origin feat/nombre-de-la-tarea
-   ```
+---
+
+## 💻 Wireframes y prototipo interactivo
+
+Incluye el diseño base del sistema.  
+[Insertar aquí capturas clave de Figma]
+
+🔗 Enlace Figma: [https://www.figma.com/design/cJnIk7TdEIpi38S2tTMMvI/React?node-id=0-1&t=phlTGt8lnfz7CUB7-1]
+
+---
+
+## 💾 Código fuente
+
+🔗 Repositorio GitHub: [https://github.com/RuisuTech/Restaurant-John-Khon]
+
+---
+
+## 🧪 Pruebas de Usabilidad
+
+Durante la realización de la **Tarea 02**, se llevaron a cabo pruebas con usuarios reales para evaluar la experiencia de uso. Los principales hallazgos fueron:
+
+- ✅ **Flujo claro y comprensible:** Los usuarios comprendieron fácilmente el proceso paso a paso para realizar una reserva.
+- ⚠️ **Alertas poco visibles:** Algunos usuarios no notaron los mensajes de alerta del sistema.  
+  👉 *Solución:* Se reemplazaron los `alert()` por modales más llamativos y accesibles visualmente.
+- ⚠️ **Límite rígido de personas:** El sistema solo permitía seleccionar hasta 10 personas.  
+  👉 *Solución:* Se añadió un campo numérico personalizado para ingresar cualquier cantidad superior.
+
+---
+
+## 🐛 Problemas Detectados y Soluciones
+
+| Problema                                                      | Solución Implementada                                                 |
+|---------------------------------------------------------------|-----------------------------------------------------------------------|
+| Se podían realizar reservas duplicadas en la misma hora       | Se implementó una validación que evita guardar fecha + hora repetidas |
+| Los mensajes `alert()` eran poco notorios                     | Se reemplazaron por modales personalizados y más visibles             |
+| El calendario marcaba en rojo cualquier día con una reserva   | Se mejoró la lógica para marcar en rojo solo si **todas las horas**   |
+|                                                               |    del día están ocupadas                                             |
+
+---
+
+## 🔐 Usuarios por defecto
+
+```js
+export const usuarios = [
+  {
+    nombre: "Administrador General",
+    correo: "admin@correo.com",
+    password: "admin123",
+    rol: "admin",
+  },
+  {
+    nombre: "Cliente Ejemplo",
+    correo: "cliente@correo.com",
+    password: "cliente123",
+    rol: "cliente",
+  }
+];
+```
+
+---
+
+## ✅ Estado del proyecto
+
+- ✔️ Funcionalidad completa de reservas y estados
+- ✔️ Vista diferenciada para clientes y administrador
+- ✔️ Validación de disponibilidad por hora
+- ✔️ Calendario interactivo con colores
+- ✔️ Flujo completo de confirmación
+
+---
+
+¡Gracias por visitar el proyecto!

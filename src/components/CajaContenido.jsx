@@ -1,19 +1,25 @@
+// Componente de caja de contenido reutilizable con título, subtítulo, descripción y contenido adicional
 function CajaContenido({
-  titulo,
-  subtitulo,
-  descripcion,
-  children,
-  tituloSize = "text-3xl",
-  subtituloSize = "text-xl",
-  descripcionSize = "text-sm",
-  textAlign = "text-center",
-  className = "w-full md:w-[450px]"
+  titulo,                 // Título principal del bloque
+  subtitulo,              // Subtítulo opcional
+  descripcion,            // Texto descriptivo opcional
+  children,               // Contenido que se inserta dentro de la caja
+  tituloSize = "text-3xl",       // Tamaño del título (por defecto grande)
+  subtituloSize = "text-xl",     // Tamaño del subtítulo
+  descripcionSize = "text-sm",   // Tamaño de la descripción
+  textAlign = "text-center",     // Alineación del texto
+  className = "w-full md:w-[450px]", // Clases extra para tamaño o diseño
+  glass = false,           // Si está activado, aplica efecto tipo "glass" (transparencia difuminada)
 }) {
   return (
     <div
-      className={`${className} px-6 py-10 rounded-lg shadow-lg ${textAlign}
-    bg-white/85 text-gray-900
-    dark:bg-black/60 dark:text-white transition-colors duration-300`}
+      className={`
+        ${className} px-6 py-10 rounded-lg shadow-none ${textAlign}
+        ${glass
+          ? "bg-white dark:bg-black/40 backdrop-blur-md border dark:border-white/20"
+          : ""}
+        text-gray-900 dark:text-white transition-all duration-300
+      `}
     >
       {titulo && (
         <h2 className={`${tituloSize} font-[Mulish] font-extrabold mb-2`}>
@@ -21,14 +27,16 @@ function CajaContenido({
         </h2>
       )}
       {subtitulo && (
-        <h3 className={`${subtituloSize} font-semibold mb-2`}>{subtitulo}</h3>
+        <h3 className={`${subtituloSize} font-semibold mb-2`}>
+          {subtitulo}
+        </h3>
       )}
       {descripcion && (
         <p className={`${descripcionSize} mb-6`}>{descripcion}</p>
       )}
-      {children}
+      {children} {/* Contenido adicional pasado dentro del componente */}
     </div>
-  )
+  );
 }
 
-export default CajaContenido
+export default CajaContenido; // Exporta el componente para ser utilizado en otras vistas

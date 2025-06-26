@@ -1,20 +1,30 @@
-// src/components/ModalExito.jsx
-function ModalExito({ mensaje = "¡Acción completada con éxito!", descripcion, textoBoton = "Aceptar", onClose }) {
+import ModalBase from "./ModalBase";
+import Boton from "./Boton";
+
+// Modal que muestra un mensaje de éxito con un botón de confirmación
+function ModalExito({
+  mensaje = "¡Acción completada con éxito!", // Título del mensaje de éxito
+  descripcion,                               // Descripción opcional
+  textoBoton = "Aceptar",                    // Texto del botón
+  onClose,                                   // Función que se ejecuta al cerrar
+}) {
   return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-white/30 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-black rounded-xl shadow-2xl p-8 w-full max-w-sm text-center transition-colors">
-        <div className="text-green-500 text-5xl mb-4">✓</div>
-        <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">{mensaje}</h2>
-        {descripcion && <p className="text-gray-600 dark:text-gray-300 mb-6">{descripcion}</p>}
-        <button
-          onClick={onClose}
-          className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded transition dark:bg-green-600 dark:text-black dark:hover:bg-green-500"
-        >
-          {textoBoton}
-        </button>
-      </div>
-    </div>
+    <ModalBase
+      icono="✓"                             // Icono de confirmación (check)
+      iconoColor="text-green-500"          // Color verde para éxito
+      titulo={mensaje}                     // Título principal
+      descripcion={descripcion}            // Descripción opcional
+    >
+      {/* Botón que cierra el modal */}
+      <Boton
+        texto={textoBoton}
+        onClickOverride={onClose}
+        bgColor="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+        textColor="text-white dark:text-black"
+        className="w-full"
+      />
+    </ModalBase>
   );
 }
 
-export default ModalExito;
+export default ModalExito; // Exporta el modal para mostrar confirmaciones exitosas
