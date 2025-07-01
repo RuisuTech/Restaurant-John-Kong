@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Componentes personalizados
@@ -6,52 +6,45 @@ import Fondo from "../components/Fondo";
 import CajaContenido from "../components/CajaContenido";
 import Boton from "../components/Boton";
 import fondo from "../assets/fondo.webp";
-import ModalExito from "../components/ModalExito"; // (no usado directamente en este archivo)
-import { usuarios as usuariosBase } from "../utils/usuarios"; // usuarios base predefinidos
+import ModalBase from "../components/ModalBase";
+import { usuarios as usuariosBase } from "../utils/usuarios";
 
 function CambiarContrasena() {
-  // Estado para mostrar el modal (no se usa en el render actual)
-  const [mostrarModal, setMostrarModal] = useState(false);
+  const [nueva, setNueva] = useState("");
+  const [confirmar, setConfirmar] = useState("");
+  const [error, setError] = useState("");
+  const [mostrarModal, setMostrarModal] = useState(false); // Estado para mostrar el modal
+  const navigate = useNavigate();
 
-  // Estados para los campos del formulario
-  const [nueva, setNueva] = useState("");        // Nueva contraseña
-  const [confirmar, setConfirmar] = useState(""); // Confirmación de contraseña
-  const [error, setError] = useState("");        // Mensaje de error
-  const navigate = useNavigate();                // Hook para redireccionar
-
-  // Obtener el correo almacenado temporalmente durante el flujo de recuperación
   const correo = localStorage.getItem("recuperacionEmail");
 
-  // Si no hay correo en localStorage, se redirige al usuario al paso anterior
-  if (!correo) {
-    navigate("/recuperar");
-    return null;
-  }
+  // Redirigir si no hay correo (dentro de useEffect para evitar errores)
+  useEffect(() => {
+    if (!correo) {
+      navigate("/recuperar");
+    }
+  }, [correo, navigate]);
 
-  // Función que se ejecuta al hacer clic en "Guardar contraseña"
+  if (!correo) return null;
+
   const guardar = () => {
-    // Validaciones de campos vacíos
     if (!nueva || !confirmar) {
       setError("Completa todos los campos.");
       return;
     }
 
-    // Validación de longitud mínima
     if (nueva.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
 
-    // Verifica si ambas contraseñas coinciden
     if (nueva !== confirmar) {
       setError("Las contraseñas no coinciden.");
       return;
     }
 
-    // Obtener usuarios locales del localStorage (usuarios registrados por el cliente)
     const usuariosLocales = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    // Mezclar usuarios base con los locales (evitar duplicados)
     const todos = [
       ...usuariosBase,
       ...usuariosLocales.filter(
@@ -59,29 +52,23 @@ function CambiarContrasena() {
       ),
     ];
 
-    // Actualizar la contraseña del usuario con el correo correspondiente
     const actualizados = todos.map((u) =>
       u.correo === correo ? { ...u, password: nueva } : u
     );
 
-    // Filtrar nuevamente para dejar solo los usuarios que no son de la base
     const nuevosLocales = actualizados.filter(
       (u) => !usuariosBase.some((base) => base.correo === u.correo) || true
     );
 
-    // Guardar cambios en localStorage
     localStorage.setItem("usuarios", JSON.stringify(nuevosLocales));
-    localStorage.removeItem("recuperacionEmail"); // Limpia la sesión temporal
-    setMostrarModal(true); // (no usado en vista) podría mostrar confirmación
-    navigate("/login"); // Redirige a la página de inicio de sesión
+
+    setMostrarModal(true); // Muestra el modal de confirmación
   };
 
   return (
     <Fondo imageUrl={fondo}>
       <div className="flex justify-center items-center min-h-screen px-4">
         <div className="w-full max-w-md backdrop-blur-md bg-white dark:bg-black/40 p-8 rounded-2xl shadow-xl">
-          
-          {/* Contenedor general con título e icono */}
           <CajaContenido
             titulo="Crea una nueva contraseña"
             descripcion="Introduce una nueva contraseña para tu cuenta. Asegúrate de que sea segura y fácil de recordar."
@@ -90,15 +77,12 @@ function CambiarContrasena() {
             textAlign="text-center"
             className="!bg-transparent !p-0 !shadow-none"
           >
-            {/* Icono de candado */}
             <div className="flex justify-center mb-6 text-black dark:text-white">
               <i className="fa-solid fa-lock text-4xl"></i>
             </div>
 
-            {/* Mensaje de error si lo hay */}
             {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
 
-            {/* Campo: nueva contraseña */}
             <input
               type="password"
               placeholder="Nueva contraseña"
@@ -111,7 +95,6 @@ function CambiarContrasena() {
               símbolos.
             </p>
 
-            {/* Campo: confirmar contraseña */}
             <input
               type="password"
               placeholder="Confirmar contraseña"
@@ -120,7 +103,6 @@ function CambiarContrasena() {
               onChange={(e) => setConfirmar(e.target.value)}
             />
 
-            {/* Botón: guardar */}
             <Boton
               texto="Guardar contraseña"
               onClickOverride={guardar}
@@ -129,7 +111,6 @@ function CambiarContrasena() {
               className="h-[50px] w-full"
             />
 
-            {/* Botón: volver al paso anterior */}
             <Boton
               texto="Volver"
               onClickOverride={() => navigate("/verificar-codigo")}
@@ -140,6 +121,27 @@ function CambiarContrasena() {
           </CajaContenido>
         </div>
       </div>
+
+      {/* ✅ Modal de éxito */}
+      {mostrarModal && (
+        <ModalBase
+          icono={<i className="fa-solid fa-circle-check" />}
+          iconoColor="text-green-500"
+          titulo="¡Contraseña actualizada!"
+          descripcion="Ahora puedes iniciar sesión con tu nueva contraseña."
+        >
+          <Boton
+            texto="Ir al inicio de sesión"
+            onClickOverride={() => {
+              localStorage.removeItem("recuperacionEmail");
+              navigate("/login");
+            }}
+            bgColor="bg-green-600 hover:bg-green-700 dark:bg-green-400 dark:hover:bg-green-500"
+            textColor="text-white dark:text-black"
+            className="h-[45px] w-full mt-4"
+          />
+        </ModalBase>
+      )}
     </Fondo>
   );
 }
