@@ -47,11 +47,11 @@ src/
 
 | Integrante                             | Código      | Rol                         |
 |----------------------------------------|-------------------------------------------|
-| Gissel Melani Peña Chavez              | iv73043487  | Líder técnico / QA Tester   |
-| Jose Luis Osorio Guzman                | iv73466355  | Programador Frontend        |
-| Francisco Xavier Leon Velarde Robles   | pt41416014  | Programador Frontend        |
-| Jesus Gabriel Colina Martin            | iv003901538 | UI/UX Designer              |
-| Josled Luis Antonio Roman Huaman       | iv72325366  | UI/UX Designer              |
+| Gissel Melani Peña Chavez              | iv73043487  | Dev / QA Tester             |
+| Jose Luis Osorio Guzman                | iv73466355  | Dev / Programador Frontend  |
+| Francisco Xavier Leon Velarde Robles   | pt41416014  | Dev / Programador Frontend  |
+| Jesus Gabriel Colina Martin            | iv003901538 | Dev / UI/UX Designer        |
+| Josled Luis Antonio Roman Huaman       | iv72325366  | Dev / UI/UX Designer        |
 
 ---
 

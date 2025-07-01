@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Fondo from "../../components/Fondo";
-import ToggleTema from "../../components/ToggleTema";
 import Boton from "../../components/Boton";
+import BarraUsuario from "../../components/BarraUsuario";
 
 // Vista de calendario que muestra las reservas del mes para el administrador
 function CalendarioReservas() {
@@ -65,20 +65,7 @@ function CalendarioReservas() {
 
   return (
     <Fondo imageUrl="/fondo.webp">
-      {/* Botón fijo de navegación hacia atrás */}
-      <div className="fixed top-4 left-4 z-50">
-        <Boton
-          texto="Volver"
-          onClickOverride={() => navigate("/admin")}
-          bgColor="bg-emerald-600"
-          textColor="text-white"
-        />
-      </div>
-
-      {/* Botón fijo para alternar el tema claro/oscuro */}
-      <div className="fixed top-4 right-4 z-50">
-        <ToggleTema />
-      </div>
+      <BarraUsuario mostrarVolver /> {/* ✅ Vuelve al panel admin y tiene cerrar sesión */}
 
       {/* Contenido central del calendario */}
       <div className="max-w-5xl mx-auto p-4 sm:px-6 md:px-10 py-24">

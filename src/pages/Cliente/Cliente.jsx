@@ -4,7 +4,8 @@ import Fondo from "../../components/Fondo"; // Componente para fondo decorativo 
 import Boton from "../../components/Boton"; // Componente reutilizable para botones
 import ToggleTema from "../../components/ToggleTema"; // Switch para modo claro/oscuro
 import fondoCliente from "../../assets/fondo.webp"; // Imagen de fondo
-import { FiLogOut } from "react-icons/fi"; // Ícono para cerrar sesión
+import BotonCerrarSesion from "../../components/BarraUsuario"; // Componente para cerrar sesion
+import BarraUsuario from "../../components/BarraUsuario";
 
 // Vista principal del cliente al iniciar sesión
 function Cliente() {
@@ -17,24 +18,9 @@ function Cliente() {
     setUsuario(data);
   }, []);
 
-  // Función para cerrar sesión: borra el usuario y redirige al login
-  const cerrarSesion = () => {
-    localStorage.removeItem("usuario");
-    navigate("/login");
-  };
-
   return (
     <Fondo imageUrl={fondoCliente}>
-      {/* Botón fijo de cerrar sesión en la esquina superior izquierda */}
-      <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
-        <button
-          onClick={cerrarSesion}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded shadow transition-colors duration-300 flex items-center gap-2"
-        >
-          <FiLogOut />
-          Cerrar sesión
-        </button>
-      </div>
+      <BarraUsuario />
 
       {/* Botón fijo para alternar tema (claro/oscuro) en la esquina superior derecha */}
       <ToggleTema />
@@ -42,24 +28,22 @@ function Cliente() {
       {/* Contenido principal: saludo y botones de acción */}
       <section className="flex items-center justify-center min-h-screen px-4">
         <div className="w-full max-w-xl text-left text-white">
-          
-          {/* Título personalizado con nombre del usuario */}
           <h1
             className="text-4xl sm:text-6xl font-black leading-tight mb-6"
             style={{ fontFamily: "Mulish" }}
           >
             ¡Hola {usuario?.nombre || "cliente"}! 👋
           </h1>
-
           {/* Descripción introductoria con instrucciones */}
           <p className="text-lg sm:text-xl font-semibold mb-6 space-y-3">
-            <span className="block">Gracias por ser parte de nuestra comunidad.</span>
             <span className="block">
-              Aquí puedes gestionar fácilmente tus reservas y mantener el control
-              de tus visitas. Tienes dos opciones para continuar:
+              Gracias por ser parte de nuestra comunidad.
+            </span>
+            <span className="block">
+              Aquí puedes gestionar fácilmente tus reservas y mantener el
+              control de tus visitas. Tienes dos opciones para continuar:
             </span>
           </p>
-
           {/* Botones de acción: reservar y ver historial */}
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <Boton

@@ -6,6 +6,8 @@ import Boton from "../../components/Boton"; // Botón estilizado reutilizable
 import ModalExito from "../../components/ModalExito"; // Modal de confirmación de éxito
 import fondo from "../../assets/fondo.webp"; // Imagen de fondo
 
+import BarraUsuario from "../../components/BarraUsuario";
+
 // Componente para confirmar y guardar la reserva
 function ConfirmarReserva() {
   const navigate = useNavigate();
@@ -61,7 +63,10 @@ function ConfirmarReserva() {
   if (!reserva || !usuario) {
     return (
       <Fondo imageUrl={fondo}>
-        <div className="min-h-screen flex items-center justify-center px-4">
+        {/* Barra fija */}
+        <BarraUsuario />
+        {/* Espacio superior para no tapar la barra */}
+        <div className="min-h-screen pt-20 flex items-center justify-center px-4">
           <CajaContenido
             titulo="Reserva no encontrada"
             descripcion="No se encontró una reserva pendiente. Por favor, realiza una nueva."
@@ -94,6 +99,9 @@ function ConfirmarReserva() {
 
   return (
     <Fondo imageUrl={fondo}>
+      {/* Barra fija */}
+      <BarraUsuario />
+      {/* Contenedor con espacio superior para no tapar la barra */}
       <div className="min-h-screen flex items-center justify-center px-4">
         <CajaContenido
           titulo="Confirmar tu Reserva"
@@ -105,14 +113,26 @@ function ConfirmarReserva() {
         >
           {/* Muestra los detalles de la reserva */}
           <div className="text-left space-y-2 text-base">
-            <p><strong>Servicio:</strong> {tipo}</p>
-            <p><strong>Personas:</strong> {personas}</p>
-            <p><strong>Fecha:</strong> {fechaFormateada}</p>
-            <p><strong>Hora:</strong> {hora}</p>
+            <p>
+              <strong>Servicio:</strong> {tipo}
+            </p>
+            <p>
+              <strong>Personas:</strong> {personas}
+            </p>
+            <p>
+              <strong>Fecha:</strong> {fechaFormateada}
+            </p>
+            <p>
+              <strong>Hora:</strong> {hora}
+            </p>
             {comentario && (
-              <p><strong>Comentario:</strong> {comentario}</p>
+              <p>
+                <strong>Comentario:</strong> {comentario}
+              </p>
             )}
-            <p><strong>Usuario:</strong> {usuario.nombre} ({usuario.correo})</p>
+            <p>
+              <strong>Usuario:</strong> {usuario.nombre} ({usuario.correo})
+            </p>
           </div>
 
           {/* Botones: Atrás o Confirmar */}

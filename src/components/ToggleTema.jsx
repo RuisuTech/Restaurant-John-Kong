@@ -5,7 +5,7 @@ function ToggleTema({ onLogout }) {
   const { modo, alternar } = useTema(); // Hook personalizado para manejar el tema
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+    <div className="fixed left-4 bottom-4 z-50 flex items-center gap-2">
       
       {/* Botón opcional para cerrar sesión */}
       {onLogout && (

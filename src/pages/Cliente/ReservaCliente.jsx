@@ -9,6 +9,8 @@ import Boton from "../../components/Boton";
 import ModalAlerta from "../../components/ModalAlerta";
 import fondo from "../../assets/fondo.webp";
 
+import BarraUsuario from "../../components/BarraUsuario";
+
 function ReservaCliente() {
   const [tipo, setTipo] = useState(null);
   const [personas, setPersonas] = useState(null);
@@ -19,7 +21,11 @@ function ReservaCliente() {
   const [reservas, setReservas] = useState(
     JSON.parse(localStorage.getItem("reservas")) || []
   );
-  const [modal, setModal] = useState({ mostrar: false, mensaje: "", tipo: "info" });
+  const [modal, setModal] = useState({
+    mostrar: false,
+    mensaje: "",
+    tipo: "info",
+  });
 
   const navigate = useNavigate();
 
@@ -41,7 +47,10 @@ function ReservaCliente() {
 
     const cantidadPersonas = personalizado || personas;
     if (!tipo || !cantidadPersonas || !fechaSeleccionada || !horaSeleccionada) {
-      mostrarAlerta("Por favor, completa todos los pasos antes de continuar.", "warning");
+      mostrarAlerta(
+        "Por favor, completa todos los pasos antes de continuar.",
+        "warning"
+      );
       return;
     }
 
@@ -50,7 +59,10 @@ function ReservaCliente() {
       (r) => r.fecha === fechaStr && r.hora === horaSeleccionada
     );
     if (yaReservado) {
-      mostrarAlerta("Ya existe una reserva en ese horario. Elige otra hora.", "error");
+      mostrarAlerta(
+        "Ya existe una reserva en ese horario. Elige otra hora.",
+        "error"
+      );
       return;
     }
 
@@ -84,7 +96,9 @@ function ReservaCliente() {
 
   return (
     <Fondo imageUrl={fondo}>
-      <div className="w-full min-h-screen px-4 py-8 flex flex-col gap-6 text-white max-w-7xl mx-auto">
+      <div className="w-full min-h-screen px-4 pt-20 pb-8 flex flex-col gap-6 text-white max-w-7xl mx-auto">
+        <BarraUsuario />
+
         <CajaContenido
           titulo="¡Iniciemos con tu reserva!"
           descripcion="Completa los pasos para reservar una experiencia inolvidable."
@@ -106,15 +120,21 @@ function ReservaCliente() {
                   setTipo(opcion);
                   setHoraSeleccionada(null);
                 }}
-                bgColor={tipo === opcion ? "bg-green-600" : "bg-white dark:bg-black/40"}
-                textColor={tipo === opcion ? "text-white" : "text-black dark:text-white"}
+                bgColor={
+                  tipo === opcion ? "bg-green-600" : "bg-white dark:bg-black/40"
+                }
+                textColor={
+                  tipo === opcion ? "text-white" : "text-black dark:text-white"
+                }
                 className="px-4 py-2 rounded-lg font-semibold"
               />
             ))}
           </div>
 
           {/* Paso 2: Personas */}
-          <h3 className="text-lg font-bold pt-2">2. ¿Cuántas personas vendrán?</h3>
+          <h3 className="text-lg font-bold pt-2">
+            2. ¿Cuántas personas vendrán?
+          </h3>
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             {[...Array(10)].map((_, i) => (
               <button
@@ -136,12 +156,19 @@ function ReservaCliente() {
               type="number"
               placeholder="+"
               min="11"
+              step="1"
               className="w-10 h-10 rounded-full text-center font-bold bg-white dark:bg-black/40 text-black dark:text-white text-sm"
               value={personalizado}
               onChange={(e) => {
-                setPersonalizado(e.target.value);
-                setPersonas(null);
+                const valor = e.target.value;
+                if (!valor || parseInt(valor) >= 11) {
+                  setPersonalizado(valor);
+                  setPersonas(null);
+                }
               }}
+              onKeyDown={(e) =>
+                ["e", "E", "+", "-", "."].includes(e.key) && e.preventDefault()
+              }
             />
           </div>
 
@@ -157,7 +184,9 @@ function ReservaCliente() {
             fechasReservadas={reservas.map((r) => r.fecha)}
           />
           <div className="w-full">
-            <h3 className="text-lg font-bold mb-2">4. ¿Qué horario prefieren?</h3>
+            <h3 className="text-lg font-bold mb-2">
+              4. ¿Qué horario prefieren?
+            </h3>
             <Horarios
               tipo={tipo}
               fecha={fechaSeleccionada}
@@ -171,7 +200,9 @@ function ReservaCliente() {
 
         {/* Comentario */}
         <div className="space-y-4">
-          <h3 className="text-lg font-bold">5. ¿Alguna indicación adicional?</h3>
+          <h3 className="text-lg font-bold">
+            5. ¿Alguna indicación adicional?
+          </h3>
           <textarea
             className="w-full h-24 p-3 rounded bg-white backdrop-blur-md text-black dark:bg-black/40 dark:text-white"
             placeholder="Escríbelo aquí..."

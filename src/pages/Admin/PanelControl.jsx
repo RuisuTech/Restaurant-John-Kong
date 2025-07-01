@@ -1,27 +1,27 @@
+// PanelControl.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Fondo from "../../components/Fondo";
 import ToggleTema from "../../components/ToggleTema";
 import Boton from "../../components/Boton";
+import BarraUsuario from "../../components/BarraUsuario";
 
-// Panel principal del administrador para gestionar reservas (hoy y futuras)
 function PanelControl() {
-  const [reservas, setReservas] = useState([]); // Todas las reservas
-  const navigate = useNavigate(); // Navegación entre rutas
+  const [reservas, setReservas] = useState([]);
+  const [estadoFiltro, setEstadoFiltro] = useState("todas");
+  const [fechaFiltro, setFechaFiltro] = useState("");
+  const navigate = useNavigate();
 
-  // Al montar el componente, se cargan las reservas y se actualizan cada 3 segundos
   useEffect(() => {
     const cargarReservas = () => {
       const datos = JSON.parse(localStorage.getItem("reservas")) || [];
       setReservas(datos);
     };
-
-    cargarReservas(); // Primera carga inicial
-    const intervalo = setInterval(cargarReservas, 3000); // Actualización periódica
-    return () => clearInterval(intervalo); // Limpieza del intervalo
+    cargarReservas();
+    const intervalo = setInterval(cargarReservas, 3000);
+    return () => clearInterval(intervalo);
   }, []);
 
-  // Actualiza el estado de una reserva en memoria y localStorage
   const actualizarReserva = (id, nuevoEstado) => {
     const nuevas = reservas.map((r) =>
       r.id === id ? { ...r, estado: nuevoEstado } : r
@@ -30,7 +30,6 @@ function PanelControl() {
     localStorage.setItem("reservas", JSON.stringify(nuevas));
   };
 
-  // Cálculo de estadísticas para los cuadros resumen
   const resumen = {
     hoy: reservas.filter(
       (r) => r.fecha === new Date().toISOString().split("T")[0]
@@ -44,11 +43,19 @@ function PanelControl() {
 
   const hoy = new Date().toISOString().split("T")[0];
 
-  // Filtra reservas para hoy y para fechas futuras
   const reservasHoy = reservas.filter((r) => r.fecha === hoy);
   const proximas = reservas.filter((r) => r.fecha > hoy);
+  const anteriores = reservas.filter((r) => r.fecha < hoy);
 
-  // Muestra botones u estado textual dependiendo del estado actual de la reserva
+  const aplicarFiltros = (lista) => {
+    return lista.filter((r) => {
+      const coincideEstado =
+        estadoFiltro === "todas" || r.estado === estadoFiltro;
+      const coincideFecha = !fechaFiltro || r.fecha === fechaFiltro;
+      return coincideEstado && coincideFecha;
+    });
+  };
+
   const renderEstado = (reserva) => {
     const acciones = [];
 
@@ -112,17 +119,8 @@ function PanelControl() {
 
   return (
     <Fondo imageUrl="/fondo.webp">
-      {/* Botón de volver a la vista del administrador */}
-      <div className="fixed top-4 left-4 z-50">
-        <Boton
-          texto="Volver"
-          onClickOverride={() => navigate("/admin")}
-          bgColor="bg-emerald-600"
-          textColor="text-white"
-        />
-      </div>
+      <BarraUsuario mostrarVolver />
 
-      {/* Alternador de tema claro/oscuro */}
       <div className="fixed top-4 right-4 z-50">
         <ToggleTema />
       </div>
@@ -132,7 +130,7 @@ function PanelControl() {
           Panel de Control
         </h1>
 
-        {/* Cuadros con estadísticas resumidas */}
+        {/* Resumen */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <div className="bg-indigo-600 text-white rounded-xl p-4 text-center">
             <h2 className="text-lg font-semibold">Hoy</h2>
@@ -152,63 +150,122 @@ function PanelControl() {
           </div>
         </div>
 
-        {/* Tabla con reservas del día actual */}
-        <h2 className="text-xl font-bold mb-2">Reservas de hoy</h2>
-        <div className="overflow-x-auto mb-10">
-          <table className="w-full min-w-[800px] text-sm text-left">
-            <thead className="bg-gray-200 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-2">Cliente</th>
-                <th className="px-4 py-2">Hora</th>
-                <th className="px-4 py-2">Personas</th>
-                <th className="px-4 py-2">Comentario</th>
-                <th className="px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-black/60 divide-y divide-gray-300 dark:divide-gray-600">
-              {reservasHoy.map((r) => (
-                <tr key={r.id}>
-                  <td className="px-4 py-2">{r.usuario.nombre}</td>
-                  <td className="px-4 py-2">{r.hora}</td>
-                  <td className="px-4 py-2">{r.personas}</td>
-                  <td className="px-4 py-2">{r.comentario || "-"}</td>
-                  <td className="px-4 py-2">{renderEstado(r)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Filtros*/}
+        <div className="bg-white/80 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-xl p-4 mb-8 shadow-md w-full max-w-4xl mx-auto text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Filtro de fecha */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="filtro-fecha"
+                className="text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200"
+              >
+                Filtrar por fecha:
+              </label>
+              <input
+                id="filtro-fecha"
+                type="date"
+                className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800"
+                value={fechaFiltro}
+                onChange={(e) => setFechaFiltro(e.target.value)}
+              />
+            </div>
+
+            {/* Filtro de estado */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="filtro-estado"
+                className="text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200"
+              >
+                Filtrar por estado:
+              </label>
+              <select
+                id="filtro-estado"
+                className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800"
+                value={estadoFiltro}
+                onChange={(e) => setEstadoFiltro(e.target.value)}
+              >
+                <option value="todas">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+                <option value="cancelada por el cliente">
+                  Cancelada por el cliente
+                </option>
+              </select>
+            </div>
+
+            {/* Botón limpiar filtros */}
+            <div className="flex flex-col sm:mt-6">
+              <button
+                onClick={() => {
+                  setFechaFiltro("");
+                  setEstadoFiltro("todas");
+                }}
+                className="mt-4 sm:mt-0 px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium text-black dark:text-white transition"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Tabla con próximas reservas */}
-        <h2 className="text-xl font-bold mb-2">Próximas reservas</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-sm text-left">
-            <thead className="bg-gray-200 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-2">Fecha</th>
-                <th className="px-4 py-2">Cliente</th>
-                <th className="px-4 py-2">Hora</th>
-                <th className="px-4 py-2">Personas</th>
-                <th className="px-4 py-2">Comentario</th>
-                <th className="px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-black/60 divide-y divide-gray-300 dark:divide-gray-600">
-              {proximas.map((r) => (
-                <tr key={r.id}>
-                  <td className="px-4 py-2">{r.fecha}</td>
-                  <td className="px-4 py-2">{r.usuario.nombre}</td>
-                  <td className="px-4 py-2">{r.hora}</td>
-                  <td className="px-4 py-2">{r.personas}</td>
-                  <td className="px-4 py-2">{r.comentario || "-"}</td>
-                  <td className="px-4 py-2">{renderEstado(r)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Tablas */}
+        <SeccionTabla
+          titulo="Reservas de hoy"
+          lista={aplicarFiltros(reservasHoy)}
+          renderEstado={renderEstado}
+        />
+        <SeccionTabla
+          titulo="Próximas reservas"
+          lista={aplicarFiltros(proximas)}
+          renderEstado={renderEstado}
+        />
+        <SeccionTabla
+          titulo="Reservas anteriores"
+          lista={aplicarFiltros(anteriores)}
+          renderEstado={renderEstado}
+        />
       </div>
     </Fondo>
+  );
+}
+
+function SeccionTabla({ titulo, lista, renderEstado }) {
+  if (lista.length === 0) return null;
+
+  return (
+    <>
+      <h2 className="text-xl font-bold mb-2">{titulo}</h2>
+      <div className="overflow-x-auto mb-10">
+        <table className="w-full min-w-[800px] text-sm text-left">
+          <thead className="bg-gray-200 dark:bg-gray-700">
+            <tr>
+              <th className="px-4 py-2">Fecha</th>
+              <th className="px-4 py-2">Cliente</th>
+              <th className="px-4 py-2">Hora</th>
+              <th className="px-4 py-2">Personas</th>
+              <th className="px-4 py-2">Comentario</th>
+              <th className="px-4 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white dark:bg-black/60 divide-y divide-gray-300 dark:divide-gray-600">
+            {lista.map((r, index) => (
+              <tr key={r.id || index}>
+                <td className="px-4 py-2">{r.fecha}</td>
+                <td className="px-4 py-2">
+                  {r.usuario?.nombre || "Desconocido"}
+                </td>
+                <td className="px-4 py-2">{r.hora}</td>
+                <td className="px-4 py-2">{r.personas}</td>
+                <td className="px-4 py-2">{r.comentario || "-"}</td>
+                <td className="px-4 py-2">{renderEstado(r)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 
