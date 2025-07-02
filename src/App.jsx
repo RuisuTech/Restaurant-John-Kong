@@ -18,6 +18,9 @@ import ToggleTema from "./components/ToggleTema";
 import PanelControl from "./pages/Admin/PanelControl";
 import CalendarioAdmin from "./pages/Admin/CalendarioAdmin";
 
+import Pagina404 from "./pages/Pagina404";
+
+
 function App() {
   return (
     <>
@@ -93,6 +96,9 @@ function App() {
             </RutaPrivada>
           }
         />
+
+        <Route path="*" element={<Pagina404 />} />
+
       </Routes>
     </>
   );
