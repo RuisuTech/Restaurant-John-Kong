@@ -32,7 +32,7 @@ function ConfirmarReserva() {
       setCargando(true);
       const reservasExistentes = await obtenerReservas();
 
-      // ❌ Bloquear si ya hay una reserva "confirmada" para misma mesa, fecha y hora
+      // ✅ Verificar si ya existe una reserva confirmada para la misma mesa, fecha y hora
       const yaConfirmada = reservasExistentes.some(
         (r) =>
           r.fecha === reserva.fecha &&
@@ -46,7 +46,7 @@ function ConfirmarReserva() {
         return;
       }
 
-      // ✅ Nueva validación para evitar duplicados por recarga o doble clic
+      // ✅ Verificar si ya existe una reserva pendiente del mismo usuario para ese horario
       const yaPendiente = reservasExistentes.some(
         (r) =>
           r.fecha === reserva.fecha &&
@@ -57,10 +57,13 @@ function ConfirmarReserva() {
       );
 
       if (yaPendiente) {
-        alert("Ya enviaste una reserva pendiente para este horario.");
+        // ✅ Mostrar modal de éxito como si ya se hubiera confirmado
+        setReservaConfirmada(true);
+        sessionStorage.removeItem("reservaPendiente");
         return;
       }
 
+      // ✅ Preparar y crear la nueva reserva como pendiente
       const { id, ...reservaSinId } = reserva;
 
       const reservaConUsuario = {
