@@ -51,7 +51,7 @@ function ConfirmarReserva() {
 
       const reservaConUsuario = {
         ...reservaSinId,
-        estado: "confirmada",
+        estado: "pendiente",
         usuario: {
           nombre: usuario.nombre,
           correo: usuario.correo,
