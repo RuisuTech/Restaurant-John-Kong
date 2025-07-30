@@ -29,7 +29,7 @@ function Recuperar() {
     }
 
     try {
-      const res = await fetch("/api/usuarios");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usuarios`);
       const data = await res.json();
       const usuarios = data.usuarios || [];
 

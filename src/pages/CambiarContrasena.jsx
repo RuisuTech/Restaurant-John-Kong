@@ -49,6 +49,7 @@ function CambiarContrasena() {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/usuarios?correo=${correo}`
       );
+
       const data = await res.json();
 
       if (!res.ok || !Array.isArray(data) || data.length === 0) {
