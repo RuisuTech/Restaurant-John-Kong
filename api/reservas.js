@@ -73,7 +73,10 @@ export default async function handler(req, res) {
       .status(405)
       .json({ mensaje: `Método ${req.method} no permitido` });
   } catch (error) {
-    console.error("Error en la API de reservas:", error);
-    return res.status(500).json({ mensaje: "Error interno del servidor" });
+    console.error("Error en la API de reservas (POST):", error.message);
+    console.error("Stack:", error.stack);
+    return res
+      .status(500)
+      .json({ mensaje: "Error interno del servidor", detalle: error.message });
   }
 }
