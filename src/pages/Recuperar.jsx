@@ -30,7 +30,8 @@ function Recuperar() {
 
     try {
       const res = await fetch("/api/usuarios");
-      const usuarios = await res.json();
+      const data = await res.json();
+      const usuarios = data.usuarios || [];
 
       // Buscar si existe el correo ingresado
       const usuario = usuarios.find((u) => u.correo === correo);
@@ -43,11 +44,10 @@ function Recuperar() {
       // Generar un código aleatorio de 6 dígitos
       const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-      // Guardar temporalmente los datos en localStorage para continuar el proceso
+      // Guardar en localStorage
       localStorage.setItem("recuperacionEmail", correo);
       localStorage.setItem("codigoRecuperacion", codigo);
       localStorage.setItem("codigoTimestamp", Date.now());
-
 
       // Configurar EmailJS
       const templateParams = {
@@ -58,7 +58,6 @@ function Recuperar() {
         message: "Este es tu código para recuperar tu contraseña.",
       };
 
-      // Enviar el correo
       await emailjs.send(
         "service_fg14qjy",
         "template_opzlz8g",
