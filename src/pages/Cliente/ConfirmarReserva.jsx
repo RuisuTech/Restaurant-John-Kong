@@ -26,49 +26,53 @@ function ConfirmarReserva() {
   }, [usuario]);
 
   const confirmar = async () => {
-  if (!reserva || !usuario || reservaConfirmada || cargando) return;
+    if (!reserva || !usuario || reservaConfirmada || cargando) return;
 
-  try {
-    setCargando(true);
+    try {
+      setCargando(true);
 
-    const reservasExistentes = await obtenerReservas();
+      const reservasExistentes = await obtenerReservas();
 
-    const yaExiste = reservasExistentes.some(
-      (r) =>
-        r.fecha === reserva.fecha &&
-        r.hora === reserva.hora &&
-        r.mesa === reserva.mesa &&
-        r.estado === "confirmada"
-    );
+      const yaExiste = reservasExistentes.some(
+        (r) =>
+          r.fecha === reserva.fecha &&
+          r.hora === reserva.hora &&
+          r.mesa === reserva.mesa &&
+          r.estado === "confirmada"
+      );
 
-    if (yaExiste) {
-      alert("Ya hay una reserva confirmada para esta mesa en ese horario.");
-      return;
+      if (yaExiste) {
+        alert("Ya hay una reserva confirmada para esta mesa en ese horario.");
+        return;
+      }
+
+      // ✅ Agregar campo usuario y eliminar id si existe
+      const { id, ...reservaSinId } = reserva;
+
+      const reservaConUsuario = {
+        ...reservaSinId,
+        estado: "confirmada",
+        usuario: {
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+        },
+      };
+
+      // ✅ Crear reserva en el backend
+      await crearReserva(reservaConUsuario);
+
+      setReservaConfirmada(true);
+      sessionStorage.removeItem("reservaPendiente");
+    } catch (error) {
+      console.error("Error al confirmar la reserva:", error);
+      alert(
+        error.message ||
+          "Hubo un problema al confirmar la reserva. Intenta nuevamente."
+      );
+    } finally {
+      setCargando(false);
     }
-
-    // ✅ Agregar campo usuario
-    const reservaConUsuario = {
-      ...reserva,
-      estado: "confirmada",
-      usuario: {
-        nombre: usuario.nombre,
-        correo: usuario.correo,
-      },
-    };
-
-    // ✅ Crear reserva en el backend
-    await crearReserva(reservaConUsuario);
-
-    setReservaConfirmada(true);
-    sessionStorage.removeItem("reservaPendiente");
-  } catch (error) {
-    console.error("Error al confirmar la reserva:", error);
-    alert(error.message || "Hubo un problema al confirmar la reserva. Intenta nuevamente.");
-  } finally {
-    setCargando(false);
-  }
-};
-
+  };
 
   if (!reserva || !usuario) {
     return (
