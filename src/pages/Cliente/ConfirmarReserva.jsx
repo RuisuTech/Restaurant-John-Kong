@@ -19,7 +19,7 @@ function ConfirmarReserva() {
   const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
-    const r = JSON.parse(sessionStorage.getItem("reservaPendiente")); // ✅ cambiado a sessionStorage
+    const r = JSON.parse(sessionStorage.getItem("reservaPendiente"));
     if (r && usuario) {
       setReserva(r);
     }
@@ -30,10 +30,10 @@ function ConfirmarReserva() {
 
     try {
       setCargando(true);
-
       const reservasExistentes = await obtenerReservas();
 
-      const yaExiste = reservasExistentes.some(
+      // ❌ Bloquear si ya hay una reserva "confirmada" para misma mesa, fecha y hora
+      const yaConfirmada = reservasExistentes.some(
         (r) =>
           r.fecha === reserva.fecha &&
           r.hora === reserva.hora &&
@@ -41,12 +41,26 @@ function ConfirmarReserva() {
           r.estado === "confirmada"
       );
 
-      if (yaExiste) {
+      if (yaConfirmada) {
         alert("Ya hay una reserva confirmada para esta mesa en ese horario.");
         return;
       }
 
-      // ✅ Agregar campo usuario y eliminar id si existe
+      // ✅ Nueva validación para evitar duplicados por recarga o doble clic
+      const yaPendiente = reservasExistentes.some(
+        (r) =>
+          r.fecha === reserva.fecha &&
+          r.hora === reserva.hora &&
+          r.mesa === reserva.mesa &&
+          r.estado === "pendiente" &&
+          r.usuario?.correo === usuario.correo
+      );
+
+      if (yaPendiente) {
+        alert("Ya enviaste una reserva pendiente para este horario.");
+        return;
+      }
+
       const { id, ...reservaSinId } = reserva;
 
       const reservaConUsuario = {
@@ -58,7 +72,6 @@ function ConfirmarReserva() {
         },
       };
 
-      // ✅ Crear reserva en el backend
       await crearReserva(reservaConUsuario);
 
       setReservaConfirmada(true);
@@ -148,7 +161,7 @@ function ConfirmarReserva() {
             <Boton
               texto="Atrás"
               onClickOverride={() => {
-                sessionStorage.removeItem("reservaPendiente"); // ✅ también aquí
+                sessionStorage.removeItem("reservaPendiente");
                 navigate("/reservar");
               }}
               bgColor="bg-gray-500"
