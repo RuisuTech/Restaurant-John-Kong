@@ -52,7 +52,9 @@ function CambiarContrasena() {
       setLoading(true); // ✅ Mostrar estado de carga
 
       // Buscar usuario
-      const res = await fetch(`/api/usuarios?correo=${correo}`);
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/usuarios?correo=${correo}`
+      );
       const data = await res.json();
 
       if (!res.ok || data.length === 0) {
