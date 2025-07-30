@@ -23,56 +23,60 @@ function Recuperar() {
 
   // Función que se ejecuta al hacer clic en "Enviar"
   const enviarCodigo = async () => {
-    if (!correo) {
-      setError("Por favor, ingresa tu correo.");
+  if (!correo) {
+    setError("Por favor, ingresa tu correo.");
+    return;
+  }
+
+  const esCorreoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+  if (!esCorreoValido) {
+    setError("Ingresa un correo válido.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usuarios`);
+    const usuarios = await res.json(); // <-- Aquí corregido
+
+    const usuario = usuarios.find(
+      (u) => u.correo.toLowerCase() === correo.toLowerCase()
+    );
+
+    if (!usuario) {
+      setError("Este correo no está registrado.");
       return;
     }
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usuarios`);
-      const data = await res.json();
-      const usuarios = data.usuarios || [];
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-      // Buscar si existe el correo ingresado
-      const usuario = usuarios.find((u) => u.correo === correo);
+    localStorage.setItem("recuperacionEmail", correo);
+    localStorage.setItem("codigoRecuperacion", codigo);
+    localStorage.setItem("codigoTimestamp", Date.now());
 
-      if (!usuario) {
-        setError("Este correo no está registrado.");
-        return;
-      }
+    const templateParams = {
+      to_email: correo,
+      codigo,
+      name: usuario.nombre || "Usuario",
+      time: new Date().toLocaleString("es-PE"),
+      message: "Este es tu código para recuperar tu contraseña.",
+    };
 
-      // Generar un código aleatorio de 6 dígitos
-      const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    await emailjs.send(
+      "service_fg14qjy",
+      "template_opzlz8g",
+      templateParams,
+      "H3XD1-MD44C4UxsxB"
+    );
 
-      // Guardar en localStorage
-      localStorage.setItem("recuperacionEmail", correo);
-      localStorage.setItem("codigoRecuperacion", codigo);
-      localStorage.setItem("codigoTimestamp", Date.now());
+    navigate("/verificar-codigo");
+  } catch (err) {
+    console.error("Error al enviar el correo:", err);
+    setError(
+      "Hubo un error al intentar enviar el código. Intenta nuevamente."
+    );
+  }
+};
 
-      // Configurar EmailJS
-      const templateParams = {
-        to_email: correo,
-        codigo,
-        name: usuario.nombre || "Usuario",
-        time: new Date().toLocaleString("es-PE"),
-        message: "Este es tu código para recuperar tu contraseña.",
-      };
-
-      await emailjs.send(
-        "service_fg14qjy",
-        "template_opzlz8g",
-        templateParams,
-        "H3XD1-MD44C4UxsxB"
-      );
-
-      navigate("/verificar-codigo");
-    } catch (err) {
-      console.error("Error al enviar el correo:", err);
-      setError(
-        "Hubo un error al intentar enviar el código. Intenta nuevamente."
-      );
-    }
-  };
 
   return (
     <Fondo imageUrl={fondo}>
