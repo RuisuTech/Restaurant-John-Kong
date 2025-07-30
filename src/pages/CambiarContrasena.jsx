@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Componentes personalizados
 import Fondo from "../components/Fondo";
 import CajaContenido from "../components/CajaContenido";
 import Boton from "../components/Boton";
@@ -13,7 +11,7 @@ function CambiarContrasena() {
   const [confirmar, setConfirmar] = useState("");
   const [error, setError] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ Nuevo estado para loading
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const correo = localStorage.getItem("recuperacionEmail");
@@ -27,11 +25,7 @@ function CambiarContrasena() {
   if (!correo) return null;
 
   const guardar = async () => {
-    setError(""); // Limpiar error anterior
-    if (!correo) {
-      setError("No se ha identificado el correo.");
-      return;
-    }
+    setError("");
 
     if (!nueva || !confirmar) {
       setError("Completa todos los campos.");
@@ -49,15 +43,15 @@ function CambiarContrasena() {
     }
 
     try {
-      setLoading(true); // ✅ Mostrar estado de carga
+      setLoading(true);
 
-      // Buscar usuario
+      // ✅ Buscar usuario por correo en backend
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/usuarios?correo=${correo}`
       );
       const data = await res.json();
 
-      if (!res.ok || data.length === 0) {
+      if (!res.ok || !Array.isArray(data) || data.length === 0) {
         setError("No se encontró el usuario.");
         setLoading(false);
         return;
@@ -65,14 +59,17 @@ function CambiarContrasena() {
 
       const usuario = data[0];
 
-      // Actualizar contraseña
-      const actualizar = await fetch(`/api/usuarios/${usuario.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ password: nueva }),
-      });
+      // ✅ Actualizar contraseña en backend
+      const actualizar = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/usuarios/${usuario.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password: nueva }),
+        }
+      );
 
       if (!actualizar.ok) {
         throw new Error("Error al actualizar la contraseña.");
@@ -83,7 +80,7 @@ function CambiarContrasena() {
       console.error(err);
       setError("Ocurrió un error. Intenta nuevamente.");
     } finally {
-      setLoading(false); // ✅ Finalizar carga
+      setLoading(false);
     }
   };
 
@@ -128,7 +125,7 @@ function CambiarContrasena() {
             <Boton
               texto={loading ? "Guardando..." : "Guardar contraseña"}
               onClickOverride={guardar}
-              disabled={loading} // ✅ Desactiva el botón si está cargando
+              disabled={loading}
               bgColor="bg-green-600 hover:bg-green-700 dark:bg-green-400 dark:hover:bg-green-500"
               textColor="text-white dark:text-black"
               className="h-[50px] w-full"
