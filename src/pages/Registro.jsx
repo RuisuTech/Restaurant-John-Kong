@@ -10,6 +10,8 @@ import ModalExito from "../components/ModalExito";
 import Boton from "../components/Boton";
 import LinkSpan from "../components/LinkSpan";
 import fondoRegistro from "../assets/fondo.webp";
+import { crearUsuario, obtenerUsuarios } from "../utils/api";
+
 
 function Registro() {
   // Estados para los campos del formulario
@@ -49,9 +51,13 @@ function Registro() {
   }
 
   try {
-    const res = await fetch("/api/usuarios");
-    const usuarios = await res.json();
-    const yaExiste = usuarios.some((u) => u.correo === correo);
+    // ✅ Normalizar correo para evitar duplicados por mayúsculas o espacios
+    const correoNormalizado = correo.trim().toLowerCase();
+
+    const usuarios = await obtenerUsuarios();
+    const yaExiste = usuarios.some(
+      (u) => u.correo.toLowerCase() === correoNormalizado
+    );
 
     if (yaExiste) {
       setError("Este correo ya está registrado.");
@@ -59,24 +65,14 @@ function Registro() {
     }
 
     const nuevoUsuario = {
-      nombre,
-      correo,
+      nombre: nombre.trim(),
+      correo: correoNormalizado,
       password,
       rol: "cliente",
     };
 
-    const crear = await fetch("/api/usuarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nuevoUsuario),
-    });
-
-    if (!crear.ok) {
-      throw new Error("No se pudo registrar el usuario.");
-    }
-
-    // Auto-login tras registro exitoso
-    login(nuevoUsuario);
+    const usuarioCreado = await crearUsuario(nuevoUsuario);
+    login(usuarioCreado); // ✅ Login con datos reales del backend
     navigate("/cliente");
   } catch (err) {
     console.error("Error al registrar:", err);
@@ -179,3 +175,4 @@ function Registro() {
 }
 
 export default Registro;
+

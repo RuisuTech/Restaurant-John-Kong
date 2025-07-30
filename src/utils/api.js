@@ -6,6 +6,13 @@ const BASE_URL = "https://restaurant-backend-vz82.onrender.com";
 const API_URL = `${BASE_URL}/reservas`;
 const USUARIOS_URL = `${BASE_URL}/usuarios`;
 
+export const obtenerUsuarios = async () => {
+  const res = await fetch(USUARIOS_URL);
+  if (!res.ok) throw new Error("Error al obtener usuarios");
+  return await res.json();
+};
+
+
 // ✅ Obtener todas las reservas
 export async function obtenerReservas() {
   const res = await fetch(API_URL);

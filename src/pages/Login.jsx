@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { loginConGoogle } from "../utils/api";
+import { loginConGoogle, obtenerUsuarios } from "../utils/api";
 
 import logo from "../assets/logo.png";
 import logoWhite from "../assets/logo-white.png";
@@ -22,12 +22,11 @@ function Login() {
   const { modo } = useTema();
   const { login } = useAuth();
 
-  // 🔒 Sanitiza entradas para prevenir inyecciones básicas
   const sanitize = (text) => text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   const accederConGoogle = async () => {
     try {
-      const usuario = await loginConGoogle(); // ✅ Todo centralizado
+      const usuario = await loginConGoogle();
       login(usuario);
       navigate("/cliente");
     } catch (error) {
@@ -48,8 +47,8 @@ function Login() {
     setCargando(true);
     try {
       const correoNormalizado = sanitize(correo.trim().toLowerCase());
-      const res = await fetch("/api/usuarios");
-      const listaUsuarios = await res.json();
+
+      const listaUsuarios = await obtenerUsuarios();
 
       const user = listaUsuarios.find(
         (u) =>
@@ -58,7 +57,7 @@ function Login() {
       );
 
       if (user) {
-        login(user); // ✅ login desde el contexto
+        login(user);
         navigate(user.rol === "admin" ? "/admin" : "/cliente");
       } else {
         setError("Correo o contraseña incorrectos.");
