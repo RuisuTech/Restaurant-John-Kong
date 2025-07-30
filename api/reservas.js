@@ -1,4 +1,3 @@
-// api/reservas.js
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -31,6 +30,9 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       const nuevaReserva = req.body;
 
+      // Aceptar usuario o cliente
+      nuevaReserva.usuario = nuevaReserva.usuario || nuevaReserva.cliente;
+
       if (
         !nuevaReserva.fecha ||
         !nuevaReserva.hora ||
@@ -40,7 +42,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ mensaje: "Datos incompletos" });
       }
 
-      // Verificar si ya existe una reserva confirmada en ese horario y mesa
+      // Verificar si ya hay una reserva confirmada para esa mesa y hora
       const yaExiste = reservas.some(
         (r) =>
           r.fecha === nuevaReserva.fecha &&
@@ -55,7 +57,6 @@ export default async function handler(req, res) {
           .json({ mensaje: "Ya hay una reserva confirmada para esa mesa." });
       }
 
-      // Agregar ID y fecha de confirmación si no vienen
       nuevaReserva.id = Date.now();
       nuevaReserva.fechaConfirmacion =
         nuevaReserva.fechaConfirmacion || new Date().toISOString();

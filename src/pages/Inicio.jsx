@@ -14,7 +14,7 @@ function Inicio() {
       : "/cliente"
     : "/login";
 
-  const textoBoton = usuario ? "Ir al Panel" : "Inicia Sesión o Regístrate";
+  const textoBoton = usuario ? "Comenzar" : "Inicia Sesión o Regístrate";
 
   return (
     <Fondo imageUrl={fondoInicio}>

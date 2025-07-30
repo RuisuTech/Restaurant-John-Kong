@@ -10,7 +10,7 @@ export async function obtenerReservas() {
 }
 
 export async function crearReserva(reserva) {
-  const res = await fetch(API_URL, {
+  const res = await fetch("/api/reservas", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,9 +18,15 @@ export async function crearReserva(reserva) {
     body: JSON.stringify(reserva),
   });
 
-  if (!res.ok) throw new Error("Error al crear reserva");
+  if (!res.ok) {
+    const errorMensaje = await res.text();
+    console.error("Error al crear reserva:", errorMensaje);
+    throw new Error(`Error al crear reserva: ${errorMensaje}`);
+  }
+
   return await res.json();
 }
+
 
 export async function actualizarReserva(id, data) {
   const res = await fetch(`${API_URL}/${id}`, {
