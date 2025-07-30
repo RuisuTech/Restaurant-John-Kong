@@ -7,18 +7,17 @@ import CajaContenido from "../components/CajaContenido";
 import Boton from "../components/Boton";
 import fondo from "../assets/fondo.webp";
 import ModalBase from "../components/ModalBase";
-import { usuarios as usuariosBase } from "../utils/usuarios";
 
 function CambiarContrasena() {
   const [nueva, setNueva] = useState("");
   const [confirmar, setConfirmar] = useState("");
   const [error, setError] = useState("");
-  const [mostrarModal, setMostrarModal] = useState(false); // Estado para mostrar el modal
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ Nuevo estado para loading
   const navigate = useNavigate();
 
   const correo = localStorage.getItem("recuperacionEmail");
 
-  // Redirigir si no hay correo (dentro de useEffect para evitar errores)
   useEffect(() => {
     if (!correo) {
       navigate("/recuperar");
@@ -27,7 +26,13 @@ function CambiarContrasena() {
 
   if (!correo) return null;
 
-  const guardar = () => {
+  const guardar = async () => {
+    setError(""); // Limpiar error anterior
+    if (!correo) {
+      setError("No se ha identificado el correo.");
+      return;
+    }
+
     if (!nueva || !confirmar) {
       setError("Completa todos los campos.");
       return;
@@ -43,26 +48,41 @@ function CambiarContrasena() {
       return;
     }
 
-    const usuariosLocales = JSON.parse(localStorage.getItem("usuarios")) || [];
+    try {
+      setLoading(true); // ✅ Mostrar estado de carga
 
-    const todos = [
-      ...usuariosBase,
-      ...usuariosLocales.filter(
-        (u) => !usuariosBase.some((base) => base.correo === u.correo)
-      ),
-    ];
+      // Buscar usuario
+      const res = await fetch(`/api/usuarios?correo=${correo}`);
+      const data = await res.json();
 
-    const actualizados = todos.map((u) =>
-      u.correo === correo ? { ...u, password: nueva } : u
-    );
+      if (!res.ok || data.length === 0) {
+        setError("No se encontró el usuario.");
+        setLoading(false);
+        return;
+      }
 
-    const nuevosLocales = actualizados.filter(
-      (u) => !usuariosBase.some((base) => base.correo === u.correo) || true
-    );
+      const usuario = data[0];
 
-    localStorage.setItem("usuarios", JSON.stringify(nuevosLocales));
+      // Actualizar contraseña
+      const actualizar = await fetch(`/api/usuarios/${usuario.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: nueva }),
+      });
 
-    setMostrarModal(true); // Muestra el modal de confirmación
+      if (!actualizar.ok) {
+        throw new Error("Error al actualizar la contraseña.");
+      }
+
+      setMostrarModal(true);
+    } catch (err) {
+      console.error(err);
+      setError("Ocurrió un error. Intenta nuevamente.");
+    } finally {
+      setLoading(false); // ✅ Finalizar carga
+    }
   };
 
   return (
@@ -104,8 +124,9 @@ function CambiarContrasena() {
             />
 
             <Boton
-              texto="Guardar contraseña"
+              texto={loading ? "Guardando..." : "Guardar contraseña"}
               onClickOverride={guardar}
+              disabled={loading} // ✅ Desactiva el botón si está cargando
               bgColor="bg-green-600 hover:bg-green-700 dark:bg-green-400 dark:hover:bg-green-500"
               textColor="text-white dark:text-black"
               className="h-[50px] w-full"
@@ -122,7 +143,6 @@ function CambiarContrasena() {
         </div>
       </div>
 
-      {/* ✅ Modal de éxito */}
       {mostrarModal && (
         <ModalBase
           icono={<i className="fa-solid fa-circle-check" />}

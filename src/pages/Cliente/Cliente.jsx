@@ -1,40 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Fondo from "../../components/Fondo"; // Componente para fondo decorativo con imagen y blur
-import Boton from "../../components/Boton"; // Componente reutilizable para botones
-import ToggleTema from "../../components/ToggleTema"; // Switch para modo claro/oscuro
-import fondoCliente from "../../assets/fondo.webp"; // Imagen de fondo
-import BotonCerrarSesion from "../../components/BarraUsuario"; // Componente para cerrar sesion
+import Fondo from "../../components/Fondo";
+import Boton from "../../components/Boton";
+import ToggleTema from "../../components/ToggleTema";
+import fondoCliente from "../../assets/fondo.webp";
 import BarraUsuario from "../../components/BarraUsuario";
+import { useAuth } from "../../context/AuthContext";
 
-// Vista principal del cliente al iniciar sesión
 function Cliente() {
-  const [usuario, setUsuario] = useState(null); // Almacena datos del usuario actual
-  const navigate = useNavigate(); // Hook para navegación entre rutas
+  const navigate = useNavigate();
+  const { usuario } = useAuth();
 
-  // Al cargar el componente, obtiene los datos del usuario desde localStorage
+  // Redirige si no hay usuario autenticado
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("usuario"));
-    setUsuario(data);
-  }, []);
+    if (!usuario) {
+      navigate("/login");
+    }
+  }, [usuario, navigate]);
+
+  const getSaludo = () => {
+    const hora = new Date().getHours();
+    if (hora < 12) return "¡Buenos días";
+    if (hora < 18) return "¡Buenas tardes";
+    return "¡Buenas noches";
+  };
 
   return (
     <Fondo imageUrl={fondoCliente}>
       <BarraUsuario />
-
-      {/* Botón fijo para alternar tema (claro/oscuro) en la esquina superior derecha */}
       <ToggleTema />
 
-      {/* Contenido principal: saludo y botones de acción */}
       <section className="flex items-center justify-center min-h-screen px-4">
         <div className="w-full max-w-xl text-left text-white">
           <h1
             className="text-4xl sm:text-6xl font-black leading-tight mb-6"
             style={{ fontFamily: "Mulish" }}
           >
-            ¡Hola {usuario?.nombre || "cliente"}! 👋
+            {getSaludo()} {usuario?.nombre || "cliente"}! 👋
           </h1>
-          {/* Descripción introductoria con instrucciones */}
+
           <p className="text-lg sm:text-xl font-semibold mb-6 space-y-3">
             <span className="block">
               Gracias por ser parte de nuestra comunidad.
@@ -44,7 +48,7 @@ function Cliente() {
               control de tus visitas. Tienes dos opciones para continuar:
             </span>
           </p>
-          {/* Botones de acción: reservar y ver historial */}
+
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <Boton
               texto="📅 Reservar"
@@ -56,7 +60,6 @@ function Cliente() {
             <Boton
               texto="🕓 Historial de Reservas"
               onClickOverride={() => navigate("/historial")}
-              // ✅ bgColor estaba mal escrito como "gColor" en una versión anterior
               bgColor="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-600"
               textColor="text-white dark:text-black"
               className="h-[50px] w-full"
@@ -68,4 +71,4 @@ function Cliente() {
   );
 }
 
-export default Cliente; // Exporta la vista del cliente
+export default Cliente;

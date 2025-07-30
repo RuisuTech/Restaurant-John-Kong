@@ -1,22 +1,15 @@
 // BarraUsuario.jsx
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut } from "react-icons/fi";
+import { FiLogOut, FiArrowLeft } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
-import { FiArrowLeft } from "react-icons/fi";
-import Boton from "./Boton"; // Asegúrate de importar tu componente Boton
+import { useAuth } from "../context/AuthContext";
 
 function BarraUsuario({ mostrarVolver = false }) {
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null);
-
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("usuario"));
-    setUsuario(data);
-  }, []);
+  const { usuario, logout } = useAuth();
 
   const cerrarSesion = () => {
-    localStorage.removeItem("usuario");
+    logout();
     navigate("/login");
   };
 

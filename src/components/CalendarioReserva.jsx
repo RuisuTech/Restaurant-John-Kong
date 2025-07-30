@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 // deshabilita las que estén completamente ocupadas (según el tipo y hora)
 function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
   const hoy = new Date();
+  const TOTAL_MESAS = 6;
+
   const [mesActual, setMesActual] = useState(
     new Date(hoy.getFullYear(), hoy.getMonth(), 1)
   );
@@ -44,17 +46,37 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
 
   // Devuelve un Set de fechas que están completamente ocupadas
   const obtenerFechasCompletamenteReservadas = () => {
-    const mapa = new Map();
+    const mapa = new Map(); // { fecha: { hora: Set<mesas> } }
 
     reservas.forEach((r) => {
-      if (r.tipo !== tipo) return;
-      if (!mapa.has(r.fecha)) mapa.set(r.fecha, new Set());
-      mapa.get(r.fecha).add(r.hora);
+      if (r.tipo !== tipo || r.estado !== "confirmada") return;
+
+      if (!mapa.has(r.fecha)) {
+        mapa.set(r.fecha, new Map());
+      }
+
+      const mapaHoras = mapa.get(r.fecha);
+      if (!mapaHoras.has(r.hora)) {
+        mapaHoras.set(r.hora, new Set());
+      }
+
+      mapaHoras.get(r.hora).add(r.mesa);
     });
 
     const bloqueadas = new Set();
-    for (const [fecha, horas] of mapa) {
-      if (horasEsperadas.every((h) => horas.has(h))) {
+
+    for (const [fecha, horasMap] of mapa.entries()) {
+      let todasLasHorasLlenas = true;
+
+      for (const hora of horasEsperadas) {
+        const mesasEnHora = horasMap.get(hora);
+        if (!mesasEnHora || mesasEnHora.size < TOTAL_MESAS) {
+          todasLasHorasLlenas = false;
+          break;
+        }
+      }
+
+      if (todasLasHorasLlenas) {
         bloqueadas.add(fecha);
       }
     }
@@ -78,6 +100,11 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
     );
     setMesActual(nuevo);
   };
+
+  // Contar días bloqueados del mes actual
+  const diasDisponibles = dias.filter(
+    (d) => d && !fechasBloqueadas.has(formatear(d))
+  ).length;
 
   return (
     <div className="text-center bg-white/10 dark:bg-black/60 backdrop-blur-sm p-4 rounded-lg">
@@ -119,6 +146,7 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
           return (
             <div
               key={i}
+              title={isDisabled ? "Sin disponibilidad" : ""}
               className={`aspect-square flex items-center justify-center rounded-full cursor-pointer transition
                 ${
                   !day
@@ -140,6 +168,15 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
           );
         })}
       </div>
+
+      {/* Contador de fechas disponibles */}
+      <p className="mt-3 text-xs sm:text-sm text-white/80">
+        Días disponibles este mes:{" "}
+        <span className="font-semibold">{diasDisponibles}</span> de{" "}
+        <span className="font-semibold">
+          {dias.filter((d) => d !== null).length}
+        </span>
+      </p>
     </div>
   );
 }

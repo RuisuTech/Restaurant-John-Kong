@@ -1,5 +1,4 @@
-// ✅ ReservaCliente.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CalendarioReserva from "../../components/CalendarioReserva";
 import Horarios from "../../components/Horarios";
@@ -8,8 +7,9 @@ import CajaContenido from "../../components/CajaContenido";
 import Boton from "../../components/Boton";
 import ModalAlerta from "../../components/ModalAlerta";
 import fondo from "../../assets/fondo.webp";
-
 import BarraUsuario from "../../components/BarraUsuario";
+import { obtenerReservas, crearReserva } from "../../utils/api";
+import { useAuth } from "../../context/AuthContext"; // ✅ Usar contexto
 
 function ReservaCliente() {
   const [tipo, setTipo] = useState(null);
@@ -17,10 +17,9 @@ function ReservaCliente() {
   const [personalizado, setPersonalizado] = useState("");
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [horaSeleccionada, setHoraSeleccionada] = useState(null);
+  const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [comentario, setComentario] = useState("");
-  const [reservas, setReservas] = useState(
-    JSON.parse(localStorage.getItem("reservas")) || []
-  );
+  const [reservas, setReservas] = useState([]);
   const [modal, setModal] = useState({
     mostrar: false,
     mensaje: "",
@@ -28,6 +27,11 @@ function ReservaCliente() {
   });
 
   const navigate = useNavigate();
+  const { usuario } = useAuth(); // ✅ Obtener usuario desde el contexto
+
+  useEffect(() => {
+    obtenerReservas().then(setReservas);
+  }, []);
 
   const mostrarAlerta = (mensaje, tipo = "warning") => {
     setModal({ mostrar: true, mensaje, tipo });
@@ -37,8 +41,7 @@ function ReservaCliente() {
     setModal({ mostrar: false, mensaje: "", tipo: "info" });
   };
 
-  const guardarReserva = () => {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const guardarReserva = async () => {
     if (!usuario) {
       mostrarAlerta("Debes iniciar sesión para hacer una reserva", "error");
       navigate("/login");
@@ -46,32 +49,41 @@ function ReservaCliente() {
     }
 
     const cantidadPersonas = personalizado || personas;
-    if (!tipo || !cantidadPersonas || !fechaSeleccionada || !horaSeleccionada) {
-      mostrarAlerta(
-        "Por favor, completa todos los pasos antes de continuar.",
-        "warning"
-      );
+    if (
+      !tipo ||
+      !cantidadPersonas ||
+      !fechaSeleccionada ||
+      !horaSeleccionada ||
+      !mesaSeleccionada
+    ) {
+      mostrarAlerta("Completa todos los pasos (incluye la mesa).", "warning");
       return;
     }
 
     const fechaStr = fechaSeleccionada.toISOString().split("T")[0];
+
     const yaReservado = reservas.some(
-      (r) => r.fecha === fechaStr && r.hora === horaSeleccionada
+      (r) =>
+        r.fecha === fechaStr &&
+        r.hora === horaSeleccionada &&
+        r.mesa === mesaSeleccionada &&
+        (r.estado === "confirmada" || r.estado === "pendiente")
     );
+
     if (yaReservado) {
       mostrarAlerta(
-        "Ya existe una reserva en ese horario. Elige otra hora.",
+        "Ya existe una reserva en esa mesa a esa hora. Elige otra.",
         "error"
       );
       return;
     }
 
-    const nueva = {
-      id: Date.now(),
+    const nuevaReserva = {
       tipo,
       personas: cantidadPersonas,
       fecha: fechaStr,
       hora: horaSeleccionada,
+      mesa: mesaSeleccionada,
       comentario,
       usuario: {
         nombre: usuario.nombre,
@@ -80,8 +92,20 @@ function ReservaCliente() {
       estado: "pendiente",
     };
 
-    localStorage.setItem("reservaPendiente", JSON.stringify(nueva));
-    navigate("/confirmar-reserva");
+    try {
+      const reservaCreada = await crearReserva(nuevaReserva);
+
+      // ✅ Guardar en sessionStorage en lugar de localStorage
+      sessionStorage.setItem("reservaPendiente", JSON.stringify(reservaCreada));
+
+      navigate(`/confirmar-reserva?id=${reservaCreada.id}`);
+    } catch (error) {
+      console.error("Error al crear reserva:", error);
+      mostrarAlerta(
+        "No se pudo guardar la reserva. Intenta nuevamente.",
+        "error"
+      );
+    }
   };
 
   const obtenerHorasDisponibles = () => {
@@ -92,6 +116,47 @@ function ReservaCliente() {
       return Array.from({ length: 6 }, (_, i) => `${18 + i}:00`);
     }
     return [];
+  };
+
+  const contarReservasPorHora = () => {
+    if (!fechaSeleccionada) return {};
+
+    const fechaStr = fechaSeleccionada.toISOString().split("T")[0];
+    const conteo = {};
+
+    reservas.forEach((r) => {
+      if (
+        r.fecha === fechaStr &&
+        (r.estado === "confirmada" || r.estado === "pendiente")
+      ) {
+        if (!conteo[r.hora]) {
+          conteo[r.hora] = new Set();
+        }
+        conteo[r.hora].add(r.mesa);
+      }
+    });
+
+    // Convertimos Set a número de mesas ocupadas
+    Object.keys(conteo).forEach((hora) => {
+      conteo[hora] = conteo[hora].size;
+    });
+
+    return conteo;
+  };
+
+  const obtenerMesasOcupadas = () => {
+    if (!fechaSeleccionada || !horaSeleccionada) return [];
+
+    const fechaStr = fechaSeleccionada.toISOString().split("T")[0];
+
+    return reservas
+      .filter(
+        (r) =>
+          r.fecha === fechaStr &&
+          r.hora === horaSeleccionada &&
+          (r.estado === "confirmada" || r.estado === "pendiente")
+      )
+      .map((r) => r.mesa);
   };
 
   return (
@@ -182,7 +247,10 @@ function ReservaCliente() {
             fecha={fechaSeleccionada}
             setFecha={setFechaSeleccionada}
             fechasReservadas={reservas.map((r) => r.fecha)}
+            reservas={reservas}
+            tipo={tipo}
           />
+
           <div className="w-full">
             <h3 className="text-lg font-bold mb-2">
               4. ¿Qué horario prefieren?
@@ -194,11 +262,12 @@ function ReservaCliente() {
               onSelect={(hora) => setHoraSeleccionada(hora)}
               columnas={3}
               horasDisponibles={obtenerHorasDisponibles()}
+              conteoMesasPorHora={contarReservasPorHora()} // <- NUEVO
             />
           </div>
         </div>
 
-        {/* Comentario */}
+        {/* Paso 5: Comentario */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold">
             5. ¿Alguna indicación adicional?
@@ -209,6 +278,42 @@ function ReservaCliente() {
             value={comentario}
             onChange={(e) => setComentario(e.target.value)}
           />
+
+          {/* Paso 6: Selección de Mesa */}
+          <h3 className="text-lg font-bold pt-2">
+            6. ¿En qué mesa deseas sentarte?
+          </h3>
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
+            {["M1", "M2", "M3", "M4", "M5", "M6"].map((mesa) => {
+              const ocupadas = obtenerMesasOcupadas();
+              const estaOcupada = ocupadas.includes(mesa);
+              const esSeleccionada = mesaSeleccionada === mesa;
+
+              let clase =
+                "px-4 py-2 rounded-lg font-semibold text-sm transition ";
+
+              if (estaOcupada) {
+                clase += "bg-red-600 text-white cursor-not-allowed";
+              } else if (esSeleccionada) {
+                clase += "bg-green-400 text-black";
+              } else {
+                clase +=
+                  "bg-green-700 hover:bg-green-600 text-white cursor-pointer";
+              }
+
+              return (
+                <button
+                  key={mesa}
+                  onClick={() => {
+                    if (!estaOcupada) setMesaSeleccionada(mesa);
+                  }}
+                  className={clase}
+                >
+                  {mesa}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Botones */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

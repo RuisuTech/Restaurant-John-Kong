@@ -10,7 +10,6 @@ import Boton from "../components/Boton";
 
 // Recursos
 import fondo from "../assets/fondo.webp";
-import { usuarios as usuariosBase } from "../utils/usuarios";
 
 function Recuperar() {
   // Estado para guardar el correo ingresado por el usuario
@@ -23,55 +22,57 @@ function Recuperar() {
   const navigate = useNavigate();
 
   // Función que se ejecuta al hacer clic en "Enviar"
-  const enviarCodigo = () => {
-    // Obtener usuarios almacenados localmente
-    const usuariosLocales = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-    // Combinar usuarios base con usuarios locales, evitando duplicados
-    const todos = [
-      ...usuariosBase,
-      ...usuariosLocales.filter(
-        (u) => !usuariosBase.some((base) => base.correo === u.correo)
-      ),
-    ];
-
-    // Verificar si el correo existe en la base de datos
-    const existe = todos.find((u) => u.correo === correo);
-
-    if (!existe) {
-      setError("Este correo no está registrado.");
+  const enviarCodigo = async () => {
+    if (!correo) {
+      setError("Por favor, ingresa tu correo.");
       return;
     }
 
-    // Generar un código de 6 dígitos aleatorio
-    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    try {
+      const res = await fetch("/api/usuarios");
+      const usuarios = await res.json();
 
-    // Guardar datos temporales para el proceso de recuperación
-    localStorage.setItem("recuperacionEmail", correo);
-    localStorage.setItem("codigoRecuperacion", codigo);
+      // Buscar si existe el correo ingresado
+      const usuario = usuarios.find((u) => u.correo === correo);
 
-    // Parámetros para enviar el correo con EmailJS
-    const templateParams = {
-      to_email: correo,
-      codigo,
-      name: existe.nombre || "Usuario",
-      time: new Date().toLocaleString("es-PE"),
-      message: "Este es tu código para recuperar tu contraseña.",
-    };
+      if (!usuario) {
+        setError("Este correo no está registrado.");
+        return;
+      }
 
-    // Enviar correo utilizando EmailJS
-    emailjs
-      .send(
-        "service_fg14qjy",      // ID del servicio de email
-        "template_opzlz8g",     // ID de la plantilla
-        templateParams,         // Datos a enviar
-        "H3XD1-MD44C4UxsxB"     // Clave pública de EmailJS
-      )
-      .then(() => navigate("/verificar-codigo")) // Ir a la siguiente pantalla
-      .catch((error) => {
-        console.error("Error al enviar el correo:", error);
-        setError("No se pudo enviar el código. Intenta más tarde.");
-      });
+      // Generar un código aleatorio de 6 dígitos
+      const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Guardar temporalmente los datos en localStorage para continuar el proceso
+      localStorage.setItem("recuperacionEmail", correo);
+      localStorage.setItem("codigoRecuperacion", codigo);
+      localStorage.setItem("codigoTimestamp", Date.now());
+
+
+      // Configurar EmailJS
+      const templateParams = {
+        to_email: correo,
+        codigo,
+        name: usuario.nombre || "Usuario",
+        time: new Date().toLocaleString("es-PE"),
+        message: "Este es tu código para recuperar tu contraseña.",
+      };
+
+      // Enviar el correo
+      await emailjs.send(
+        "service_fg14qjy",
+        "template_opzlz8g",
+        templateParams,
+        "H3XD1-MD44C4UxsxB"
+      );
+
+      navigate("/verificar-codigo");
+    } catch (err) {
+      console.error("Error al enviar el correo:", err);
+      setError(
+        "Hubo un error al intentar enviar el código. Intenta nuevamente."
+      );
+    }
   };
 
   return (

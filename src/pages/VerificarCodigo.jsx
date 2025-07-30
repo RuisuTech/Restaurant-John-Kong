@@ -9,28 +9,40 @@ import Boton from "../components/Boton";
 import fondo from "../assets/fondo.webp";
 
 function VerificarCodigo() {
-  // Estado para almacenar el código ingresado por el usuario
   const [codigo, setCodigo] = useState("");
-
-  // Estado para manejar errores en la verificación
   const [error, setError] = useState("");
-
-  // Hook para redirigir entre rutas
   const navigate = useNavigate();
 
-  // Función que compara el código ingresado con el que se guardó en localStorage
   const verificar = () => {
     const codigoGuardado = localStorage.getItem("codigoRecuperacion");
+    const timestampGuardado = localStorage.getItem("codigoTimestamp");
+    const ahora = Date.now();
+    const expiracion = 5 * 60 * 1000; // 5 minutos
 
-    // Si el código no coincide, mostrar mensaje de error
+    // Validación: formato correcto (6 dígitos)
+    if (!/^\d{6}$/.test(codigo)) {
+      setError("El código debe tener exactamente 6 dígitos.");
+      return;
+    }
+
+    // Validación: código expirado
+    if (!timestampGuardado || ahora - parseInt(timestampGuardado) > expiracion) {
+      setError("El código ha expirado. Por favor, solicita uno nuevo.");
+      localStorage.removeItem("codigoRecuperacion");
+      localStorage.removeItem("codigoTimestamp");
+      return;
+    }
+
+    // Validación: coincidencia exacta
     if (codigo !== codigoGuardado) {
       setError("El código ingresado es incorrecto.");
       return;
     }
 
-    // Si el código es válido:
-    localStorage.removeItem("codigoRecuperacion"); // Eliminar código del localStorage por seguridad
-    navigate("/cambiar-contraseña"); // Redirigir a la página para crear una nueva contraseña
+    // Código correcto: continuar con el flujo
+    localStorage.removeItem("codigoRecuperacion");
+    localStorage.removeItem("codigoTimestamp");
+    navigate("/cambiar-contraseña");
   };
 
   return (
@@ -50,10 +62,8 @@ function VerificarCodigo() {
               <i className="fa-solid fa-paper-plane text-4xl"></i>
             </div>
 
-            {/* Mostrar error si el código es incorrecto */}
             {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
 
-            {/* Input para ingresar el código */}
             <input
               type="text"
               placeholder="Verifica el código"
@@ -62,7 +72,6 @@ function VerificarCodigo() {
               onChange={(e) => setCodigo(e.target.value)}
             />
 
-            {/* Botones de acción: Verificar o volver atrás */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Boton
                 texto="Verificar"

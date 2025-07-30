@@ -5,35 +5,44 @@ import Fondo from "../../components/Fondo";
 import ToggleTema from "../../components/ToggleTema";
 import Boton from "../../components/Boton";
 import BarraUsuario from "../../components/BarraUsuario";
+import { obtenerReservas, actualizarReserva } from "../../utils/api";
 
 function PanelControl() {
   const [reservas, setReservas] = useState([]);
   const [estadoFiltro, setEstadoFiltro] = useState("todas");
   const [fechaFiltro, setFechaFiltro] = useState("");
+  const [busquedaUsuario, setBusquedaUsuario] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const cargarReservas = () => {
-      const datos = JSON.parse(localStorage.getItem("reservas")) || [];
-      setReservas(datos);
+    const cargar = async () => {
+      try {
+        const r = await obtenerReservas();
+        setReservas(r);
+      } catch (error) {
+        console.error("Error al obtener reservas:", error);
+      }
     };
-    cargarReservas();
-    const intervalo = setInterval(cargarReservas, 3000);
+
+    cargar();
+    const intervalo = setInterval(cargar, 3000);
     return () => clearInterval(intervalo);
   }, []);
 
-  const actualizarReserva = (id, nuevoEstado) => {
-    const nuevas = reservas.map((r) =>
-      r.id === id ? { ...r, estado: nuevoEstado } : r
-    );
-    setReservas(nuevas);
-    localStorage.setItem("reservas", JSON.stringify(nuevas));
+  const cambiarEstado = async (id, nuevoEstado) => {
+    try {
+      const actualizada = await actualizarReserva(id, { estado: nuevoEstado });
+      setReservas((prev) => prev.map((r) => (r.id === id ? actualizada : r)));
+    } catch (error) {
+      console.error("Error al actualizar reserva:", error);
+      alert("No se pudo actualizar la reserva.");
+    }
   };
 
+  const hoy = new Date().toISOString().split("T")[0];
+
   const resumen = {
-    hoy: reservas.filter(
-      (r) => r.fecha === new Date().toISOString().split("T")[0]
-    ).length,
+    hoy: reservas.filter((r) => r.fecha === hoy).length,
     completadas: reservas.filter((r) => r.estado === "completada").length,
     pendientes: reservas.filter((r) => r.estado === "pendiente").length,
     canceladas: reservas.filter(
@@ -41,39 +50,36 @@ function PanelControl() {
     ).length,
   };
 
-  const hoy = new Date().toISOString().split("T")[0];
-
   const reservasHoy = reservas.filter((r) => r.fecha === hoy);
   const proximas = reservas.filter((r) => r.fecha > hoy);
   const anteriores = reservas.filter((r) => r.fecha < hoy);
 
-  const aplicarFiltros = (lista) => {
-    return lista.filter((r) => {
-      const coincideEstado =
-        estadoFiltro === "todas" || r.estado === estadoFiltro;
-      const coincideFecha = !fechaFiltro || r.fecha === fechaFiltro;
-      return coincideEstado && coincideFecha;
-    });
-  };
+  const aplicarFiltros = (lista) =>
+    lista.filter(
+      (r) =>
+        (estadoFiltro === "todas" || r.estado === estadoFiltro) &&
+        (!fechaFiltro || r.fecha === fechaFiltro) &&
+        (!busquedaUsuario ||
+          r.usuario?.nombre?.toLowerCase().includes(busquedaUsuario))
+    );
 
   const renderEstado = (reserva) => {
     const acciones = [];
+    const id = reserva.id;
 
     if (!reserva.estado || reserva.estado === "pendiente") {
       acciones.push(
         <Boton
-          key="aceptar"
+          key={`aceptar-${id}`}
           texto="Aceptar"
-          onClickOverride={() => actualizarReserva(reserva.id, "confirmada")}
+          onClickOverride={() => cambiarEstado(id, "confirmada")}
           bgColor="bg-green-600"
           textColor="text-white"
-        />
-      );
-      acciones.push(
+        />,
         <Boton
-          key="cancelar"
+          key={`cancelar-${id}`}
           texto="Cancelar"
-          onClickOverride={() => actualizarReserva(reserva.id, "cancelada")}
+          onClickOverride={() => cambiarEstado(id, "cancelada")}
           bgColor="bg-red-600"
           textColor="text-white"
         />
@@ -81,25 +87,26 @@ function PanelControl() {
     } else if (reserva.estado === "confirmada") {
       acciones.push(
         <Boton
-          key="completar"
+          key={`completar-${id}`}
           texto="Completar"
-          onClickOverride={() => actualizarReserva(reserva.id, "completada")}
+          onClickOverride={() => cambiarEstado(id, "completada")}
           bgColor="bg-blue-600"
           textColor="text-white"
-        />
-      );
-      acciones.push(
+        />,
         <Boton
-          key="cancelar"
+          key={`cancelar-confirmada-${id}`}
           texto="Cancelar"
-          onClickOverride={() => actualizarReserva(reserva.id, "cancelada")}
+          onClickOverride={() => cambiarEstado(id, "cancelada")}
           bgColor="bg-red-600"
           textColor="text-white"
         />
       );
     } else if (reserva.estado === "completada") {
       acciones.push(
-        <span className="text-green-600 font-semibold dark:text-green-400">
+        <span
+          key={`estado-completada-${id}`}
+          className="text-green-600 font-semibold dark:text-green-400"
+        >
           Completada
         </span>
       );
@@ -108,7 +115,10 @@ function PanelControl() {
       reserva.estado === "cancelada por el cliente"
     ) {
       acciones.push(
-        <span className="text-red-600 font-semibold dark:text-red-400">
+        <span
+          key={`estado-cancelada-${id}`}
+          className="text-red-600 font-semibold dark:text-red-400"
+        >
           Cancelada
         </span>
       );
@@ -132,28 +142,27 @@ function PanelControl() {
 
         {/* Resumen */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          <div className="bg-indigo-600 text-white rounded-xl p-4 text-center">
-            <h2 className="text-lg font-semibold">Hoy</h2>
-            <p className="text-2xl font-bold">{resumen.hoy}</p>
-          </div>
-          <div className="bg-green-600 text-white rounded-xl p-4 text-center">
-            <h2 className="text-lg font-semibold">Completadas</h2>
-            <p className="text-2xl font-bold">{resumen.completadas}</p>
-          </div>
-          <div className="bg-yellow-500 text-white rounded-xl p-4 text-center">
-            <h2 className="text-lg font-semibold">Pendientes</h2>
-            <p className="text-2xl font-bold">{resumen.pendientes}</p>
-          </div>
-          <div className="bg-red-500 text-white rounded-xl p-4 text-center">
-            <h2 className="text-lg font-semibold">Canceladas</h2>
-            <p className="text-2xl font-bold">{resumen.canceladas}</p>
-          </div>
+          {Object.entries(resumen).map(([k, v]) => (
+            <div
+              key={k}
+              className={`rounded-xl p-4 text-center text-white ${
+                {
+                  hoy: "bg-indigo-600",
+                  completadas: "bg-green-600",
+                  pendientes: "bg-yellow-500",
+                  canceladas: "bg-red-500",
+                }[k]
+              }`}
+            >
+              <h2 className="text-lg font-semibold capitalize">{k}</h2>
+              <p className="text-2xl font-bold">{v}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Filtros*/}
+        {/* Filtros */}
         <div className="bg-white/80 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-xl p-4 mb-8 shadow-md w-full max-w-4xl mx-auto text-center">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {/* Filtro de fecha */}
             <div className="flex flex-col">
               <label
                 htmlFor="filtro-fecha"
@@ -169,8 +178,24 @@ function PanelControl() {
                 onChange={(e) => setFechaFiltro(e.target.value)}
               />
             </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="filtro-usuario"
+                className="text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200"
+              >
+                Buscar por cliente:
+              </label>
+              <input
+                type="text"
+                id="filtro-usuario"
+                className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800"
+                value={busquedaUsuario}
+                onChange={(e) =>
+                  setBusquedaUsuario(e.target.value.toLowerCase())
+                }
+              />
+            </div>
 
-            {/* Filtro de estado */}
             <div className="flex flex-col">
               <label
                 htmlFor="filtro-estado"
@@ -195,7 +220,6 @@ function PanelControl() {
               </select>
             </div>
 
-            {/* Botón limpiar filtros */}
             <div className="flex flex-col sm:mt-6">
               <button
                 onClick={() => {
@@ -247,21 +271,34 @@ function SeccionTabla({ titulo, lista, renderEstado }) {
               <th className="px-4 py-2">Personas</th>
               <th className="px-4 py-2">Comentario</th>
               <th className="px-4 py-2">Acciones</th>
+              <th className="px-4 py-2">Mesa</th>
+              <th className="px-4 py-2">Tipo</th>
+              <th className="px-4 py-2">Estado</th>
+              <th className="px-4 py-2">Fecha Confirmación</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-black/60 divide-y divide-gray-300 dark:divide-gray-600">
-            {lista.map((r, index) => (
-              <tr key={r.id || index}>
-                <td className="px-4 py-2">{r.fecha}</td>
-                <td className="px-4 py-2">
-                  {r.usuario?.nombre || "Desconocido"}
-                </td>
-                <td className="px-4 py-2">{r.hora}</td>
-                <td className="px-4 py-2">{r.personas}</td>
-                <td className="px-4 py-2">{r.comentario || "-"}</td>
-                <td className="px-4 py-2">{renderEstado(r)}</td>
-              </tr>
-            ))}
+            {lista.map((r, index) => {
+              const key = r.id || `${r.fecha}-${r.hora}-${index}`;
+              return (
+                <tr key={key}>
+                  <td className="px-4 py-2">{r.fecha}</td>
+                  <td className="px-4 py-2">
+                    {r.usuario?.nombre || "Desconocido"}
+                  </td>
+                  <td className="px-4 py-2">{r.hora}</td>
+                  <td className="px-4 py-2">{r.personas}</td>
+                  <td className="px-4 py-2">{r.comentario || "-"}</td>
+                  <td className="px-4 py-2">{renderEstado(r)}</td>
+                  <td className="px-4 py-2">{r.mesa}</td>
+                  <td className="px-4 py-2 capitalize">{r.tipo || "-"}</td>
+                  <td className="px-4 py-2 capitalize">{r.estado}</td>
+                  <td className="px-4 py-2">
+                    {r.fechaConfirmacion?.split("T")[0] || "-"}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

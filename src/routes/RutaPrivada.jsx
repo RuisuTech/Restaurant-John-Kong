@@ -1,22 +1,30 @@
-// Importa el componente Navigate para redirigir programáticamente en React Router
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import PantallaCargando from "../components/PantallaCargando";
 
-// Componente de protección de rutas privadas
 function RutaPrivada({ children, rolRequerido }) {
-  // Obtiene al usuario autenticado desde localStorage
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const { usuario, cargando } = useAuth();
+  const location = useLocation();
 
-  // Si no hay usuario autenticado, redirige al login
+  // ⏳ Mostrar pantalla de carga mientras se obtiene el estado de autenticación
+  if (cargando) return <PantallaCargando />;
+
+  // 🔐 Si no está autenticado, redirigir al login con la ubicación original (opcional)
   if (!usuario) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Si se requiere un rol específico y el usuario no lo cumple, redirige también
-  if (rolRequerido && usuario.rol !== rolRequerido) {
-    return <Navigate to="/login" />;
+  // 🚫 Si el rol no coincide, redirigir al login o a una ruta de acceso denegado
+  if (
+    rolRequerido &&
+    ((Array.isArray(rolRequerido) && !rolRequerido.includes(usuario.rol)) ||
+      (!Array.isArray(rolRequerido) && usuario.rol !== rolRequerido))
+  ) {
+    return <Navigate to="/login" replace />;
+    // Alternativa: <Navigate to="/no-autorizado" />
   }
 
-  // Si pasa todas las validaciones, renderiza el contenido hijo (la ruta protegida)
+  // ✅ Usuario autenticado y con el rol adecuado
   return children;
 }
 

@@ -17,14 +17,16 @@ npm install
 ```
 
 ## 3. Ejecución en modo desarrollo
-Para iniciar el servidor de desarrollo y acceder a la aplicación:
+Este proyecto utiliza funciones API serverless (en `/api`) que **requieren `vercel dev` para ejecutarse localmente**. Por tanto, usa:
 
 ```bash
-npm run dev
+vercel dev
 ```
 
-Luego abre tu navegador en:  
-👉 **http://localhost:5173**
+Y luego abre tu navegador en:  
+👉 **http://localhost:3000** (u otro puerto que indique la consola)
+
+> ⚠️ No uses `npm run dev` si estás usando funciones API, ya que Vite no las ejecutará correctamente.
 
 ## 4. Estructura de carpetas (abreviada)
 
@@ -46,7 +48,7 @@ src/
 ## 5. Créditos
 
 | Integrante                             | Código      | Rol                         |
-|----------------------------------------|-------------------------------------------|
+|----------------------------------------|-------------|-----------------------------|
 | Gissel Melani Peña Chavez              | iv73043487  | Dev / QA Tester             |
 | Jose Luis Osorio Guzman                | iv73466355  | Dev / Programador Frontend  |
 | Francisco Xavier Leon Velarde Robles   | pt41416014  | Dev / Programador Frontend  |
@@ -123,11 +125,11 @@ Durante la realización de la **Tarea 02**, se llevaron a cabo pruebas con usuar
 ## 🐛 Problemas Detectados y Soluciones
 
 | Problema                                                      | Solución Implementada                                                 |
-|---------------------------------------------------------------|-----------------------------------------------------------------------|
+|---------------------------------------------------------------|------------------------------------------------------------------------|
 | Se podían realizar reservas duplicadas en la misma hora       | Se implementó una validación que evita guardar fecha + hora repetidas |
 | Los mensajes `alert()` eran poco notorios                     | Se reemplazaron por modales personalizados y más visibles             |
 | El calendario marcaba en rojo cualquier día con una reserva   | Se mejoró la lógica para marcar en rojo solo si **todas las horas**   |
-|                                                               |    del día están ocupadas                                             |
+|                                                               | del día están ocupadas                                                |
 
 ---
 

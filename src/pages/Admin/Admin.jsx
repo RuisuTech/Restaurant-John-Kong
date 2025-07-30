@@ -1,35 +1,23 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Fondo from "../../components/Fondo";
 import Boton from "../../components/Boton";
 import ToggleTema from "../../components/ToggleTema";
+import BarraUsuario from "../../components/BarraUsuario";
+import { useAuth } from "../../context/AuthContext";
 import fondoAdmin from "../../assets/fondo.webp";
-import BarraUsuario from "../../components/BarraUsuario"; // ✅ Importa la nueva barra
 
 function Admin() {
-  const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("usuario"));
-    setUsuario(data);
-  }, []);
+  const { usuario } = useAuth();
 
   return (
     <Fondo imageUrl={fondoAdmin}>
-      {/* ✅ Barra superior reutilizable */}
       <BarraUsuario />
-
-      {/* Botón modo oscuro */}
       <ToggleTema />
 
-      {/* Contenido principal */}
       <section className="flex items-center justify-center min-h-screen px-4">
-        <div className="w-full max-w-xl text-left text-white">
-          <h1
-            className="text-4xl sm:text-6xl font-black leading-tight mb-6"
-            style={{ fontFamily: "Mulish" }}
-          >
+        <div className="w-full max-w-xl text-left text-white dark:text-white">
+          <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-6 font-mulish">
             ¡Hola {usuario?.nombre || "admin"}! 👋
           </h1>
 

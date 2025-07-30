@@ -1,6 +1,7 @@
 // Importación de hooks de React y navegación
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 // Importación de componentes personalizados y recursos
 import Fondo from "../components/Fondo";
@@ -16,6 +17,8 @@ function Registro() {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [confirmar, setConfirmar] = useState("");
+  const { login } = useAuth();
+
 
   // Estado para mostrar mensajes de error
   const [error, setError] = useState("");
@@ -27,36 +30,34 @@ function Registro() {
   const navigate = useNavigate();
 
   // Función que maneja el proceso de registro
-  const registrar = (e) => {
-    e.preventDefault();
+  const registrar = async (e) => {
+  e.preventDefault();
 
-    // Validación: todos los campos son obligatorios
-    if (!nombre || !correo || !password || !confirmar) {
-      setError("Todos los campos son obligatorios.");
-      return;
-    }
+  if (!nombre || !correo || !password || !confirmar) {
+    setError("Todos los campos son obligatorios.");
+    return;
+  }
 
-    // Validación: longitud mínima de la contraseña
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
+  if (password.length < 8) {
+    setError("La contraseña debe tener al menos 8 caracteres.");
+    return;
+  }
 
-    // Validación: coincidencia de contraseñas
-    if (password !== confirmar) {
-      setError("Las contraseñas no coinciden.");
-      return;
-    }
+  if (password !== confirmar) {
+    setError("Las contraseñas no coinciden.");
+    return;
+  }
 
-    // Verificar si ya hay un usuario registrado con ese correo
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-    const existe = usuarios.find((u) => u.correo === correo);
-    if (existe) {
+  try {
+    const res = await fetch("/api/usuarios");
+    const usuarios = await res.json();
+    const yaExiste = usuarios.some((u) => u.correo === correo);
+
+    if (yaExiste) {
       setError("Este correo ya está registrado.");
       return;
     }
 
-    // Crear nuevo usuario con rol 'cliente'
     const nuevoUsuario = {
       nombre,
       correo,
@@ -64,18 +65,25 @@ function Registro() {
       rol: "cliente",
     };
 
-    // Guardar en localStorage
-    localStorage.setItem(
-      "usuarios",
-      JSON.stringify([...usuarios, nuevoUsuario])
-    );
+    const crear = await fetch("/api/usuarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevoUsuario),
+    });
 
-    // Mostrar modal de éxito
-    setRegistroExitoso(true);
+    if (!crear.ok) {
+      throw new Error("No se pudo registrar el usuario.");
+    }
 
-    // Limpiar errores anteriores
-    setError("");
-  };
+    // Auto-login tras registro exitoso
+    login(nuevoUsuario);
+    navigate("/cliente");
+  } catch (err) {
+    console.error("Error al registrar:", err);
+    setError("Hubo un error en el servidor. Intenta más tarde.");
+  }
+};
+
 
   return (
     <Fondo imageUrl={fondoRegistro}>
@@ -124,7 +132,8 @@ function Registro() {
 
             {/* Recomendación de contraseña */}
             <p className="text-xs my-4 text-black dark:text-gray-200">
-              Debe tener al menos 8 caracteres y combinar letras, números o símbolos.
+              Debe tener al menos 8 caracteres y combinar letras, números o
+              símbolos.
             </p>
 
             {/* Campo: Confirmar contraseña */}

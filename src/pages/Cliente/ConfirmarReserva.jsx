@@ -1,71 +1,65 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Fondo from "../../components/Fondo"; // Componente para fondo con imagen
-import CajaContenido from "../../components/CajaContenido"; // Componente reutilizable tipo card con fondo blur
-import Boton from "../../components/Boton"; // Botón estilizado reutilizable
-import ModalExito from "../../components/ModalExito"; // Modal de confirmación de éxito
-import fondo from "../../assets/fondo.webp"; // Imagen de fondo
-
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import Fondo from "../../components/Fondo";
+import CajaContenido from "../../components/CajaContenido";
+import Boton from "../../components/Boton";
+import ModalExito from "../../components/ModalExito";
 import BarraUsuario from "../../components/BarraUsuario";
+import fondo from "../../assets/fondo.webp";
+import { obtenerReservas, crearReserva } from "../../utils/api";
 
-// Componente para confirmar y guardar la reserva
 function ConfirmarReserva() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { usuario } = useAuth();
 
-  const [reserva, setReserva] = useState(null); // Datos de la reserva pendiente
-  const [usuario, setUsuario] = useState(null); // Datos del usuario actual
-  const [reservaConfirmada, setReservaConfirmada] = useState(false); // Estado para mostrar el modal de éxito
+  const [reserva, setReserva] = useState(null);
+  const [reservaConfirmada, setReservaConfirmada] = useState(false);
+  const [cargando, setCargando] = useState(false);
 
-  // Al cargar el componente, intenta recuperar la reserva pendiente y el usuario
   useEffect(() => {
-    const r = JSON.parse(localStorage.getItem("reservaPendiente"));
-    const u = JSON.parse(localStorage.getItem("usuario"));
-
-    if (r && u) {
+    const r = JSON.parse(sessionStorage.getItem("reservaPendiente")); // ✅ cambiado a sessionStorage
+    if (r && usuario) {
       setReserva(r);
-      setUsuario(u);
     }
-  }, []);
+  }, [usuario]);
 
-  // Función que confirma la reserva
-  const confirmar = () => {
-    if (!reserva || !usuario || reservaConfirmada) return;
+  const confirmar = async () => {
+    if (!reserva || !usuario || reservaConfirmada || cargando) return;
 
-    const reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+    try {
+      setCargando(true);
 
-    const nuevaReserva = {
-      ...reserva,
-      id: reserva.id || crypto.randomUUID(), // ✅ Genera un ID único
-      estado: "pendiente", // Estado inicial
-      fechaConfirmacion: new Date().toISOString(), // Fecha actual
-      usuario,
-    };
+      const reservasExistentes = await obtenerReservas();
 
-    // Previene duplicados exactos en fecha/hora/usuario
-    const yaExiste = reservas.some(
-      (r) =>
-        r.fecha === reserva.fecha &&
-        r.hora === reserva.hora &&
-        r.usuario?.correo === usuario.correo
-    );
+      const yaExiste = reservasExistentes.some(
+        (r) =>
+          r.fecha === reserva.fecha &&
+          r.hora === reserva.hora &&
+          r.mesa === reserva.mesa &&
+          r.estado === "confirmada"
+      );
 
-    if (!yaExiste) {
-      reservas.push(nuevaReserva);
+      if (yaExiste) {
+        alert("Ya hay una reserva confirmada para esta mesa en ese horario.");
+        return;
+      }
+
+      setReservaConfirmada(true);
+      sessionStorage.removeItem("reservaPendiente");
+    } catch (error) {
+      console.error("Error al confirmar la reserva:", error);
+      alert("Hubo un problema al confirmar la reserva. Intenta nuevamente.");
+    } finally {
+      setCargando(false);
     }
-
-    // Guarda en localStorage
-    localStorage.setItem("reservas", JSON.stringify(reservas));
-    localStorage.removeItem("reservaPendiente"); // Limpia el estado temporal
-    setReservaConfirmada(true); // Muestra el modal
   };
 
-  // Si falta la reserva o el usuario, se muestra un mensaje de error
   if (!reserva || !usuario) {
     return (
       <Fondo imageUrl={fondo}>
-        {/* Barra fija */}
         <BarraUsuario />
-        {/* Espacio superior para no tapar la barra */}
         <div className="min-h-screen pt-20 flex items-center justify-center px-4">
           <CajaContenido
             titulo="Reserva no encontrada"
@@ -86,10 +80,7 @@ function ConfirmarReserva() {
     );
   }
 
-  // Desestructura los datos de la reserva para mostrarlos
-  const { tipo, personas, fecha, hora, comentario } = reserva;
-
-  // Formatea la fecha a formato legible (ej. lunes 25 de junio de 2025)
+  const { tipo, personas, fecha, hora, comentario, mesa } = reserva;
   const fechaFormateada = new Date(fecha).toLocaleDateString("es-PE", {
     weekday: "long",
     day: "numeric",
@@ -99,9 +90,7 @@ function ConfirmarReserva() {
 
   return (
     <Fondo imageUrl={fondo}>
-      {/* Barra fija */}
       <BarraUsuario />
-      {/* Contenedor con espacio superior para no tapar la barra */}
       <div className="min-h-screen flex items-center justify-center px-4">
         <CajaContenido
           titulo="Confirmar tu Reserva"
@@ -109,9 +98,8 @@ function ConfirmarReserva() {
           tituloSize="text-2xl"
           descripcionSize="text-sm"
           textAlign="text-center"
-          glass // ✅ Aplica fondo blur transparente
+          glass
         >
-          {/* Muestra los detalles de la reserva */}
           <div className="text-left space-y-2 text-base">
             <p>
               <strong>Servicio:</strong> {tipo}
@@ -125,6 +113,9 @@ function ConfirmarReserva() {
             <p>
               <strong>Hora:</strong> {hora}
             </p>
+            <p>
+              <strong>Mesa:</strong> {mesa}
+            </p>
             {comentario && (
               <p>
                 <strong>Comentario:</strong> {comentario}
@@ -135,12 +126,11 @@ function ConfirmarReserva() {
             </p>
           </div>
 
-          {/* Botones: Atrás o Confirmar */}
           <div className="flex justify-center gap-4 mt-6">
             <Boton
               texto="Atrás"
               onClickOverride={() => {
-                localStorage.removeItem("reservaPendiente");
+                sessionStorage.removeItem("reservaPendiente"); // ✅ también aquí
                 navigate("/reservar");
               }}
               bgColor="bg-gray-500"
@@ -148,17 +138,17 @@ function ConfirmarReserva() {
               className="w-40 h-10"
             />
             <Boton
-              texto="Reservar ahora"
+              texto={cargando ? "Procesando..." : "Reservar ahora"}
               onClickOverride={confirmar}
               bgColor="bg-green-600"
               textColor="text-white"
               className="w-40 h-10"
+              disabled={cargando}
             />
           </div>
         </CajaContenido>
       </div>
 
-      {/* Modal de éxito cuando se confirma la reserva */}
       {reservaConfirmada && (
         <ModalExito
           mensaje="¡Reserva completada!"

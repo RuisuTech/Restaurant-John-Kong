@@ -1,11 +1,8 @@
-// Importación de funciones y hooks necesarios
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase"; // Configuración de Firebase
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { loginConGoogle } from "../utils/api";
 
-// Recursos y componentes personalizados
-import { usuarios } from "../utils/usuarios"; // Lista base de usuarios por defecto
 import logo from "../assets/logo.png";
 import logoWhite from "../assets/logo-white.png";
 import fondoLogin from "../assets/fondo.webp";
@@ -17,37 +14,21 @@ import ToggleTema from "../components/ToggleTema";
 import { useTema } from "../hooks/useTema";
 
 function Login() {
-  const navigate = useNavigate(); // Para navegación programática
-  const [correo, setCorreo] = useState(""); // Estado para el correo ingresado
-  const [password, setPassword] = useState(""); // Estado para la contraseña
-  const [error, setError] = useState(""); // Estado para errores de validación o autenticación
-  const { modo } = useTema(); // Hook para detectar si el modo es claro u oscuro
+  const navigate = useNavigate();
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const { modo } = useTema();
+  const { login } = useAuth();
 
-  // Función para iniciar sesión con Google
+  // 🔒 Sanitiza entradas para prevenir inyecciones básicas
+  const sanitize = (text) => text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
   const accederConGoogle = async () => {
     try {
-      const resultado = await signInWithPopup(auth, googleProvider);
-      const usuario = resultado.user;
-
-      // Estructura de usuario para almacenar en localStorage
-      const userData = {
-        nombre: usuario.displayName,
-        correo: usuario.email,
-        rol: "cliente", // Por defecto, usuarios Google son "cliente"
-      };
-
-      // Validación: si el usuario no está en localStorage, lo guarda
-      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-      const yaExiste = usuarios.some((u) => u.correo === userData.correo);
-      if (!yaExiste) {
-        localStorage.setItem(
-          "usuarios",
-          JSON.stringify([...usuarios, userData])
-        );
-      }
-
-      // Guardar sesión y redirigir al panel cliente
-      localStorage.setItem("usuario", JSON.stringify(userData));
+      const usuario = await loginConGoogle(); // ✅ Todo centralizado
+      login(usuario);
       navigate("/cliente");
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error);
@@ -55,37 +36,46 @@ function Login() {
     }
   };
 
-  // Función para iniciar sesión con correo y contraseña
-  const handleLogin = () => {
-    const usuariosLocales = JSON.parse(localStorage.getItem("usuarios")) || [];
+  const handleLogin = async () => {
+    if (cargando) return;
 
-    // Combina usuarios base con locales sin duplicados
-    const listaUsuarios = [
-      ...usuarios,
-      ...usuariosLocales.filter(
-        (u) => !usuarios.some((base) => base.correo === u.correo)
-      ),
-    ];
+    setError("");
+    if (!correo || !password) {
+      setError("Por favor, completa todos los campos.");
+      return;
+    }
 
-    // Busca coincidencia exacta de correo y contraseña
-    const user = listaUsuarios.find(
-      (u) => u.correo === correo && u.password === password
-    );
+    setCargando(true);
+    try {
+      const correoNormalizado = sanitize(correo.trim().toLowerCase());
+      const res = await fetch("/api/usuarios");
+      const listaUsuarios = await res.json();
 
-    if (user) {
-      localStorage.setItem("usuario", JSON.stringify(user));
-      navigate(user.rol === "admin" ? "/admin" : "/cliente");
-    } else {
-      setError("Correo o contraseña incorrectos.");
+      const user = listaUsuarios.find(
+        (u) =>
+          u.correo.toLowerCase() === correoNormalizado &&
+          u.password === password
+      );
+
+      if (user) {
+        login(user); // ✅ login desde el contexto
+        navigate(user.rol === "admin" ? "/admin" : "/cliente");
+      } else {
+        setError("Correo o contraseña incorrectos.");
+      }
+    } catch (err) {
+      console.error("Error al iniciar sesión:", err);
+      setError("Hubo un problema con el servidor. Intenta nuevamente.");
+    } finally {
+      setCargando(false);
     }
   };
 
   return (
     <Fondo imageUrl={fondoLogin}>
-      <ToggleTema /> {/* Botón para cambiar modo claro/oscuro */}
+      <ToggleTema />
 
       <div className="flex justify-center items-center min-h-screen px-4">
-        {/* Contenedor del formulario de login */}
         <div className="w-full max-w-md p-8 rounded-2xl shadow-xl backdrop-blur-md bg-white dark:bg-black/40 text-black dark:text-white border border-white/20">
           <CajaContenido
             titulo="Iniciar Sesión"
@@ -93,7 +83,6 @@ function Login() {
             textAlign="text-center"
             className="!bg-transparent !p-0 !shadow-none"
           >
-            {/* Logo dinámico según modo claro/oscuro */}
             <div className="flex justify-center my-6">
               <img
                 src={modo === "oscuro" ? logoWhite : logo}
@@ -102,14 +91,12 @@ function Login() {
               />
             </div>
 
-            {/* Mensaje de error si hay fallo de autenticación */}
             {error && (
               <p className="text-red-600 dark:text-red-400 mb-4 text-center">
                 {error}
               </p>
             )}
 
-            {/* Formulario de login con inputs controlados */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -131,27 +118,25 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              {/* Enlace a recuperación de contraseña */}
               <div className="text-right text-sm mb-4">
                 <LinkSpan onClick={() => navigate("/recuperar")}>
                   ¿Olvidaste tu contraseña?
                 </LinkSpan>
               </div>
 
-              {/* Botón de envío del formulario */}
               <Boton
-                children="Iniciar Sesión"
+                texto={cargando ? "Cargando..." : "Iniciar Sesión"}
+                onClickOverride={handleLogin}
                 bgColor="bg-green-500 dark:bg-green-600"
                 textColor="text-white dark:text-black"
                 className="h-[50px] w-full"
-                onClickOverride={handleLogin}
+                disabled={cargando}
               />
             </form>
 
-            {/* Botón de inicio con Google */}
             <div className="mt-4">
               <Boton
-                children="Acceder con Google"
+                texto="Acceder con Google"
                 onClickOverride={accederConGoogle}
                 bgColor="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-600"
                 textColor="text-white dark:text-black"
@@ -159,7 +144,6 @@ function Login() {
               />
             </div>
 
-            {/* Enlace para registrarse */}
             <p className="mt-6 text-sm text-center">
               ¿No tienes una cuenta?{" "}
               <LinkSpan onClick={() => navigate("/registro")}>
