@@ -24,9 +24,7 @@ function PanelControl() {
       }
     };
 
-    cargar();
-    const intervalo = setInterval(cargar, 3000);
-    return () => clearInterval(intervalo);
+    cargar(); // Solo se ejecuta una vez al montar el componente
   }, []);
 
   const cambiarEstado = async (id, nuevoEstado) => {
