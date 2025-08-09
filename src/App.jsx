@@ -20,13 +20,9 @@ import CalendarioAdmin from "./pages/Admin/CalendarioAdmin";
 
 import Pagina404 from "./pages/Pagina404";
 
-
 function App() {
   return (
     <>
-      {/* Componente para cambiar entre modo claro/oscuro */}
-      <ToggleTema />
-
       {/* Definición de todas las rutas de la aplicación */}
       <Routes>
         {/* Rutas públicas */}
@@ -98,8 +94,9 @@ function App() {
         />
 
         <Route path="*" element={<Pagina404 />} />
-
       </Routes>
+      {/* Componente para cambiar entre modo claro/oscuro */}
+      <ToggleTema />
     </>
   );
 }
