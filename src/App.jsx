@@ -25,7 +25,7 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Contenido principal */}
-      <main className="flex-grow">
+      <main className="flex-grow pb-14">
         <Routes>
           {/* Rutas públicas */}
           <Route path="/" element={<Inicio />} />

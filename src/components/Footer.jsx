@@ -1,4 +1,3 @@
-// Footer.jsx
 function Footer() {
   return (
     <footer
@@ -6,10 +5,12 @@ function Footer() {
         bg-black/30 backdrop-blur-sm shadow text-white py-3 px-4
         flex justify-between items-center
         w-full
-        sticky bottom-0
       "
       style={{
-        marginTop: "auto", // Empuja el footer al final del contenedor
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        zIndex: 40,
       }}
     >
       <span className="text-sm opacity-80">
