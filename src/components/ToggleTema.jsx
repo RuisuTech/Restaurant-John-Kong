@@ -5,9 +5,26 @@ function ToggleTema({ onLogout }) {
   const { modo, alternar } = useTema();
 
   return (
-    <>
-      {/* Botón fijo para tema y cerrar sesión */}
-      <div className="fixed left-4 bottom-4 z-50 flex items-center gap-2">
+    <footer
+      className="
+        bg-black/30 backdrop-blur-sm shadow text-white py-3 px-4
+        flex justify-between items-center
+        fixed bottom-0 left-0 w-full
+        lg:static
+      "
+      style={{
+        position: "sticky",
+        bottom: 0,
+        marginTop: "auto",
+      }}
+    >
+      {/* Texto del footer */}
+      <span className="text-sm opacity-80">
+        © {new Date().getFullYear()} Mi Aplicación. Todos los derechos reservados.
+      </span>
+
+      {/* Botones */}
+      <div className="flex items-center gap-2">
         {onLogout && (
           <button
             onClick={onLogout}
@@ -23,14 +40,7 @@ function ToggleTema({ onLogout }) {
           {modo === "oscuro" ? "🌞 Claro" : "🌙 Oscuro"}
         </button>
       </div>
-
-      {/* Footer al final de la página */}
-      <footer className="w-full bg-black/30 backdrop-blur-sm shadow mt-auto text-white py-3 text-center">
-        <span className="text-sm opacity-80">
-          © {new Date().getFullYear()} Mi Aplicación. Todos los derechos reservados.
-        </span>
-      </footer>
-    </>
+    </footer>
   );
 }
 
