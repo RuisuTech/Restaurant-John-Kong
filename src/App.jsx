@@ -19,6 +19,7 @@ import PanelControl from "./pages/Admin/PanelControl";
 import CalendarioAdmin from "./pages/Admin/CalendarioAdmin";
 
 import Pagina404 from "./pages/Pagina404";
+import Footer from "./components/Footer";
 
 function App() {
   return (
