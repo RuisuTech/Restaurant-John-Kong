@@ -98,7 +98,7 @@ function App() {
         </Routes>
       </main>
 
-      {/* Footer con toggle */}
+      <Footer />
       <ToggleTema />
     </div>
   );
