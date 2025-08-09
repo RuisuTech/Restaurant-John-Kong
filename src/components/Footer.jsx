@@ -6,7 +6,11 @@ function Footer() {
         bg-black/30 backdrop-blur-sm shadow text-white py-3 px-4
         flex justify-between items-center
         w-full
+        sticky bottom-0
       "
+      style={{
+        marginTop: "auto", // Empuja el footer al final del contenedor
+      }}
     >
       <span className="text-sm opacity-80">
         © {new Date().getFullYear()} Mi Aplicación. Todos los derechos reservados.
