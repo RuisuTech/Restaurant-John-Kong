@@ -39,15 +39,29 @@ function Login() {
     if (cargando) return;
 
     setError("");
+
+    // 📌 Validaciones
     if (!correo || !password) {
       setError("Por favor, completa todos los campos.");
       return;
     }
 
+    const correoNormalizado = sanitize(correo.trim().toLowerCase());
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // formato general
+    // Si solo quieres Gmail: const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+    if (!emailRegex.test(correoNormalizado)) {
+      setError("El correo no es válido.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
     setCargando(true);
     try {
-      const correoNormalizado = sanitize(correo.trim().toLowerCase());
-
       const listaUsuarios = await obtenerUsuarios();
 
       const user = listaUsuarios.find(

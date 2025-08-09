@@ -1,5 +1,5 @@
 // Hooks de React y navegación
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Componentes personalizados y recursos
@@ -13,20 +13,33 @@ function VerificarCodigo() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Evita que se ingrese si no hay correo en recuperación
+    if (!localStorage.getItem("recuperacionEmail")) {
+      navigate("/recuperar");
+    }
+  }, [navigate]);
+
   const verificar = () => {
     const codigoGuardado = localStorage.getItem("codigoRecuperacion");
     const timestampGuardado = localStorage.getItem("codigoTimestamp");
     const ahora = Date.now();
     const expiracion = 5 * 60 * 1000; // 5 minutos
 
+    // Validación: existencia de código
+    if (!codigoGuardado || !timestampGuardado) {
+      setError("No se ha solicitado un código. Vuelve a la página de recuperación.");
+      return;
+    }
+
     // Validación: formato correcto (6 dígitos)
-    if (!/^\d{6}$/.test(codigo)) {
-      setError("El código debe tener exactamente 6 dígitos.");
+    if (!/^\d{6}$/.test(codigo.trim())) {
+      setError("El código debe tener exactamente 6 dígitos numéricos.");
       return;
     }
 
     // Validación: código expirado
-    if (!timestampGuardado || ahora - parseInt(timestampGuardado) > expiracion) {
+    if (ahora - parseInt(timestampGuardado) > expiracion) {
       setError("El código ha expirado. Por favor, solicita uno nuevo.");
       localStorage.removeItem("codigoRecuperacion");
       localStorage.removeItem("codigoTimestamp");
@@ -34,14 +47,16 @@ function VerificarCodigo() {
     }
 
     // Validación: coincidencia exacta
-    if (codigo !== codigoGuardado) {
+    if (codigo.trim() !== codigoGuardado) {
       setError("El código ingresado es incorrecto.");
       return;
     }
 
-    // Código correcto: continuar con el flujo
+    // Código correcto → limpiar y avanzar
     localStorage.removeItem("codigoRecuperacion");
     localStorage.removeItem("codigoTimestamp");
+
+    alert("Código verificado con éxito.");
     navigate("/cambiar-contraseña");
   };
 
@@ -66,10 +81,14 @@ function VerificarCodigo() {
 
             <input
               type="text"
-              placeholder="Verifica el código"
+              placeholder="Ingresa el código de 6 dígitos"
               className="w-full mb-6 p-3 bg-transparent border border-gray-400 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-white dark:text-white dark:placeholder-gray-300"
               value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
+              onChange={(e) => {
+                setCodigo(e.target.value.replace(/\D/g, "")); // solo números
+                setError(""); // limpiar error al escribir
+              }}
+              maxLength={6}
             />
 
             <div className="flex flex-col sm:flex-row gap-3">

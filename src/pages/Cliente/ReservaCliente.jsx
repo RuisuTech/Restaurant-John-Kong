@@ -9,7 +9,7 @@ import ModalAlerta from "../../components/ModalAlerta";
 import fondo from "../../assets/fondo.webp";
 import BarraUsuario from "../../components/BarraUsuario";
 import { obtenerReservas, crearReserva } from "../../utils/api";
-import { useAuth } from "../../context/AuthContext"; // ✅ Usar contexto
+import { useAuth } from "../../context/AuthContext";
 
 function ReservaCliente() {
   const [tipo, setTipo] = useState(null);
@@ -27,7 +27,7 @@ function ReservaCliente() {
   });
 
   const navigate = useNavigate();
-  const { usuario } = useAuth(); // ✅ Obtener usuario desde el contexto
+  const { usuario } = useAuth();
 
   useEffect(() => {
     obtenerReservas().then(setReservas);
@@ -49,19 +49,33 @@ function ReservaCliente() {
     }
 
     const cantidadPersonas = personalizado || personas;
-    if (
-      !tipo ||
-      !cantidadPersonas ||
-      !fechaSeleccionada ||
-      !horaSeleccionada ||
-      !mesaSeleccionada
-    ) {
+
+    // 📌 Validación: Campos requeridos
+    if (!tipo || !cantidadPersonas || !fechaSeleccionada || !horaSeleccionada || !mesaSeleccionada) {
       mostrarAlerta("Completa todos los pasos (incluye la mesa).", "warning");
+      return;
+    }
+
+    // 📌 Validación: Límite de personas
+    if (cantidadPersonas < 1 || cantidadPersonas > 50) {
+      mostrarAlerta("El número de personas debe estar entre 1 y 50.", "warning");
+      return;
+    }
+
+    // 📌 Validación: No permitir fechas pasadas
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaSinHora = new Date(fechaSeleccionada);
+    fechaSinHora.setHours(0, 0, 0, 0);
+
+    if (fechaSinHora < hoy) {
+      mostrarAlerta("No puedes reservar en una fecha pasada.", "warning");
       return;
     }
 
     const fechaStr = fechaSeleccionada.toISOString().split("T")[0];
 
+    // 📌 Validación: Mesa ya ocupada
     const yaReservado = reservas.some(
       (r) =>
         r.fecha === fechaStr &&
@@ -71,10 +85,7 @@ function ReservaCliente() {
     );
 
     if (yaReservado) {
-      mostrarAlerta(
-        "Ya existe una reserva en esa mesa a esa hora. Elige otra.",
-        "error"
-      );
+      mostrarAlerta("Ya existe una reserva en esa mesa a esa hora. Elige otra.", "error");
       return;
     }
 
@@ -94,17 +105,11 @@ function ReservaCliente() {
 
     try {
       const reservaCreada = await crearReserva(nuevaReserva);
-
-      // ✅ Guardar en sessionStorage en lugar de localStorage
       sessionStorage.setItem("reservaPendiente", JSON.stringify(reservaCreada));
-
       navigate(`/confirmar-reserva?id=${reservaCreada.id}`);
     } catch (error) {
       console.error("Error al crear reserva:", error);
-      mostrarAlerta(
-        "No se pudo guardar la reserva. Intenta nuevamente.",
-        "error"
-      );
+      mostrarAlerta("No se pudo guardar la reserva. Intenta nuevamente.", "error");
     }
   };
 
@@ -120,35 +125,25 @@ function ReservaCliente() {
 
   const contarReservasPorHora = () => {
     if (!fechaSeleccionada) return {};
-
     const fechaStr = fechaSeleccionada.toISOString().split("T")[0];
     const conteo = {};
-
     reservas.forEach((r) => {
-      if (
-        r.fecha === fechaStr &&
-        (r.estado === "confirmada" || r.estado === "pendiente")
-      ) {
+      if (r.fecha === fechaStr && (r.estado === "confirmada" || r.estado === "pendiente")) {
         if (!conteo[r.hora]) {
           conteo[r.hora] = new Set();
         }
         conteo[r.hora].add(r.mesa);
       }
     });
-
-    // Convertimos Set a número de mesas ocupadas
     Object.keys(conteo).forEach((hora) => {
       conteo[hora] = conteo[hora].size;
     });
-
     return conteo;
   };
 
   const obtenerMesasOcupadas = () => {
     if (!fechaSeleccionada || !horaSeleccionada) return [];
-
     const fechaStr = fechaSeleccionada.toISOString().split("T")[0];
-
     return reservas
       .filter(
         (r) =>
@@ -185,21 +180,15 @@ function ReservaCliente() {
                   setTipo(opcion);
                   setHoraSeleccionada(null);
                 }}
-                bgColor={
-                  tipo === opcion ? "bg-green-600" : "bg-white dark:bg-black/40"
-                }
-                textColor={
-                  tipo === opcion ? "text-white" : "text-black dark:text-white"
-                }
+                bgColor={tipo === opcion ? "bg-green-600" : "bg-white dark:bg-black/40"}
+                textColor={tipo === opcion ? "text-white" : "text-black dark:text-white"}
                 className="px-4 py-2 rounded-lg font-semibold"
               />
             ))}
           </div>
 
           {/* Paso 2: Personas */}
-          <h3 className="text-lg font-bold pt-2">
-            2. ¿Cuántas personas vendrán?
-          </h3>
+          <h3 className="text-lg font-bold pt-2">2. ¿Cuántas personas vendrán?</h3>
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             {[...Array(10)].map((_, i) => (
               <button
@@ -221,12 +210,13 @@ function ReservaCliente() {
               type="number"
               placeholder="+"
               min="11"
+              max="50"
               step="1"
               className="w-10 h-10 rounded-full text-center font-bold bg-white dark:bg-black/40 text-black dark:text-white text-sm"
               value={personalizado}
               onChange={(e) => {
                 const valor = e.target.value;
-                if (!valor || parseInt(valor) >= 11) {
+                if (!valor || (parseInt(valor) >= 11 && parseInt(valor) <= 50)) {
                   setPersonalizado(valor);
                   setPersonas(null);
                 }
@@ -249,12 +239,11 @@ function ReservaCliente() {
             fechasReservadas={reservas.map((r) => r.fecha)}
             reservas={reservas}
             tipo={tipo}
+            minDate={new Date()} // ⬅ Bloquea fechas pasadas
           />
 
           <div className="w-full">
-            <h3 className="text-lg font-bold mb-2">
-              4. ¿Qué horario prefieren?
-            </h3>
+            <h3 className="text-lg font-bold mb-2">4. ¿Qué horario prefieren?</h3>
             <Horarios
               tipo={tipo}
               fecha={fechaSeleccionada}
@@ -262,16 +251,14 @@ function ReservaCliente() {
               onSelect={(hora) => setHoraSeleccionada(hora)}
               columnas={3}
               horasDisponibles={obtenerHorasDisponibles()}
-              conteoMesasPorHora={contarReservasPorHora()} // <- NUEVO
+              conteoMesasPorHora={contarReservasPorHora()}
             />
           </div>
         </div>
 
         {/* Paso 5: Comentario */}
         <div className="space-y-4">
-          <h3 className="text-lg font-bold">
-            5. ¿Alguna indicación adicional?
-          </h3>
+          <h3 className="text-lg font-bold">5. ¿Alguna indicación adicional?</h3>
           <textarea
             className="w-full h-24 p-3 rounded bg-white backdrop-blur-md text-black dark:bg-black/40 dark:text-white"
             placeholder="Escríbelo aquí..."
@@ -279,26 +266,21 @@ function ReservaCliente() {
             onChange={(e) => setComentario(e.target.value)}
           />
 
-          {/* Paso 6: Selección de Mesa */}
-          <h3 className="text-lg font-bold pt-2">
-            6. ¿En qué mesa deseas sentarte?
-          </h3>
+          {/* Paso 6: Mesa */}
+          <h3 className="text-lg font-bold pt-2">6. ¿En qué mesa deseas sentarte?</h3>
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             {["M1", "M2", "M3", "M4", "M5", "M6"].map((mesa) => {
               const ocupadas = obtenerMesasOcupadas();
               const estaOcupada = ocupadas.includes(mesa);
               const esSeleccionada = mesaSeleccionada === mesa;
 
-              let clase =
-                "px-4 py-2 rounded-lg font-semibold text-sm transition ";
-
+              let clase = "px-4 py-2 rounded-lg font-semibold text-sm transition ";
               if (estaOcupada) {
                 clase += "bg-red-600 text-white cursor-not-allowed";
               } else if (esSeleccionada) {
                 clase += "bg-green-400 text-black";
               } else {
-                clase +=
-                  "bg-green-700 hover:bg-green-600 text-white cursor-pointer";
+                clase += "bg-green-700 hover:bg-green-600 text-white cursor-pointer";
               }
 
               return (
