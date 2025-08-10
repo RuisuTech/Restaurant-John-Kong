@@ -107,7 +107,7 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
   ).length;
 
   return (
-    <div className="text-center bg-white/10 dark:bg-black/60 backdrop-blur-sm p-4 rounded-lg">
+    <div className="text-center bg-white/10 dark:bg-black/60 backdrop-blur-sm p-4 rounded-lg w-1/2">
       {/* Encabezado del mes */}
       <div className="flex justify-between items-center mb-3 sm:mb-4">
         <button

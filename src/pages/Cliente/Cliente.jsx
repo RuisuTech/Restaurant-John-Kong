@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Fondo from "../../components/Fondo";
 import Boton from "../../components/Boton";
-import ToggleTema from "../../components/ToggleTema";
+
 import fondoCliente from "../../assets/fondo.webp";
 import BarraUsuario from "../../components/BarraUsuario";
 import { useAuth } from "../../context/AuthContext";
@@ -28,7 +28,6 @@ function Cliente() {
   return (
     <Fondo imageUrl={fondoCliente}>
       <BarraUsuario />
-      <ToggleTema />
 
       <section className="flex items-center justify-center min-h-screen px-4">
         <div className="w-full max-w-xl text-left text-white">

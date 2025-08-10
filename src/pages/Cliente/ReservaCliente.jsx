@@ -52,17 +52,28 @@ function ReservaCliente() {
       return;
     }
 
-    const cantidadPersonas = personalizado ? parseInt(personalizado, 10) : personas;
+    const cantidadPersonas = personalizado
+      ? parseInt(personalizado, 10)
+      : personas;
 
     // 📌 Validación: Campos requeridos
-    if (!tipo || !cantidadPersonas || !fechaSeleccionada || !horaSeleccionada || !mesaSeleccionada) {
+    if (
+      !tipo ||
+      !cantidadPersonas ||
+      !fechaSeleccionada ||
+      !horaSeleccionada ||
+      !mesaSeleccionada
+    ) {
       mostrarAlerta("Completa todos los pasos (incluye la mesa).", "warning");
       return;
     }
 
     // 📌 Validación: Límite de personas
     if (cantidadPersonas < 1 || cantidadPersonas > 50) {
-      mostrarAlerta("El número de personas debe estar entre 1 y 50.", "warning");
+      mostrarAlerta(
+        "El número de personas debe estar entre 1 y 50.",
+        "warning"
+      );
       return;
     }
 
@@ -90,7 +101,10 @@ function ReservaCliente() {
     );
 
     if (yaReservado) {
-      mostrarAlerta("Ya existe una reserva en esa mesa a esa hora. Elige otra.", "error");
+      mostrarAlerta(
+        "Ya existe una reserva en esa mesa a esa hora. Elige otra.",
+        "error"
+      );
       return;
     }
 
@@ -114,7 +128,10 @@ function ReservaCliente() {
       navigate(`/confirmar-reserva?id=${reservaCreada.id}`);
     } catch (error) {
       console.error("Error al crear reserva:", error);
-      mostrarAlerta("No se pudo guardar la reserva. Intenta nuevamente.", "error");
+      mostrarAlerta(
+        "No se pudo guardar la reserva. Intenta nuevamente.",
+        "error"
+      );
     }
   };
 
@@ -135,7 +152,10 @@ function ReservaCliente() {
     const fechaStr = new Date(fechaSeleccionada).toISOString().split("T")[0];
     const conteo = {};
     reservas.forEach((r) => {
-      if (r.fecha === fechaStr && (r.estado === "confirmada" || r.estado === "pendiente")) {
+      if (
+        r.fecha === fechaStr &&
+        (r.estado === "confirmada" || r.estado === "pendiente")
+      ) {
         if (!conteo[r.hora]) {
           conteo[r.hora] = new Set();
         }
@@ -221,7 +241,7 @@ function ReservaCliente() {
 
   return (
     <Fondo imageUrl={fondo}>
-      <div className="w-full min-h-screen px-4 pt-20 pb-8 flex flex-col gap-6 text-white max-w-7xl mx-auto">
+      <div className="w-full min-h-screen px-4 pt-20 flex flex-col gap-6 text-white max-w-7xl mx-auto pb-14">
         <BarraUsuario />
 
         <CajaContenido
@@ -240,7 +260,9 @@ function ReservaCliente() {
             {/* Mostramos botones solo si hay horas para ese servicio.
                 Si no hay fecha seleccionada, mostrar ambos (se asume día futuro). */}
             {["almuerzo", "cena"].map((opcion) => {
-              const horasDisp = fechaSeleccionada ? obtenerHorasDisponibles(opcion) : horasBasePorTipo(opcion);
+              const horasDisp = fechaSeleccionada
+                ? obtenerHorasDisponibles(opcion)
+                : horasBasePorTipo(opcion);
               if (fechaSeleccionada && horasDisp.length === 0) return null; // no mostramos botón si no hay horas
               return (
                 <Boton
@@ -250,8 +272,16 @@ function ReservaCliente() {
                     setTipo(opcion);
                     setHoraSeleccionada(null);
                   }}
-                  bgColor={tipo === opcion ? "bg-green-600" : "bg-white dark:bg-black/40"}
-                  textColor={tipo === opcion ? "text-white" : "text-black dark:text-white"}
+                  bgColor={
+                    tipo === opcion
+                      ? "bg-green-600"
+                      : "bg-white dark:bg-black/40"
+                  }
+                  textColor={
+                    tipo === opcion
+                      ? "text-white"
+                      : "text-black dark:text-white"
+                  }
                   className="px-4 py-2 rounded-lg font-semibold"
                 />
               );
@@ -259,7 +289,9 @@ function ReservaCliente() {
           </div>
 
           {/* Paso 2: Personas */}
-          <h3 className="text-lg font-bold pt-2">2. ¿Cuántas personas vendrán?</h3>
+          <h3 className="text-lg font-bold pt-2">
+            2. ¿Cuántas personas vendrán?
+          </h3>
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             {[...Array(10)].map((_, i) => (
               <button
@@ -287,14 +319,23 @@ function ReservaCliente() {
               value={personalizado}
               onChange={(e) => {
                 const valor = e.target.value;
-                if (!valor || (parseInt(valor, 10) >= 11 && parseInt(valor, 10) <= 50)) {
+                if (
+                  !valor ||
+                  (parseInt(valor, 10) >= 11 && parseInt(valor, 10) <= 50)
+                ) {
                   setPersonalizado(valor);
                   setPersonas(null);
                 }
               }}
-              onKeyDown={(e) =>
-                ["e", "E", "+", "-", "."].includes(e.key) && e.preventDefault()
-              }
+              onKeyDown={(e) => {
+                // Bloquear letras y símbolos no deseados
+                if (
+                  e.key.length === 1 && // evita permitir teclas como "ArrowLeft"
+                  !/[0-9]/.test(e.key) // solo números
+                ) {
+                  e.preventDefault();
+                }
+              }}
             />
           </div>
 
@@ -303,7 +344,7 @@ function ReservaCliente() {
         </div>
 
         {/* Calendario y (ahora) horas debajo */}
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-6 justify-items-center">
           <CalendarioReserva
             fecha={fechaSeleccionada}
             setFecha={setFechaSeleccionada}
@@ -314,11 +355,15 @@ function ReservaCliente() {
           />
 
           <div className="w-full">
-            <h3 className="text-lg font-bold mb-2">4. ¿Qué horario prefieren?</h3>
+            <h3 className="text-lg font-bold mb-2">
+              4. ¿Qué horario prefieren?
+            </h3>
 
             {/* Si no hay ningún servicio con horas, mostramos mensaje */}
             {fechaSeleccionada &&
-              ["almuerzo", "cena"].every((opcion) => obtenerHorasDisponibles(opcion).length === 0) && (
+              ["almuerzo", "cena"].every(
+                (opcion) => obtenerHorasDisponibles(opcion).length === 0
+              ) && (
                 <p className="text-center text-sm text-red-200">
                   No hay horarios disponibles para la fecha seleccionada.
                 </p>
@@ -342,7 +387,8 @@ function ReservaCliente() {
               // mostramos una pista para que el usuario elija servicio.
               fechaSeleccionada && (
                 <p className="text-center text-sm text-gray-200 mb-4">
-                  Selecciona un servicio (almuerzo o cena) para ver los horarios.
+                  Selecciona un servicio (almuerzo o cena) para ver los
+                  horarios.
                 </p>
               )
             )}
@@ -351,7 +397,9 @@ function ReservaCliente() {
 
         {/* Paso 5: Comentario */}
         <div className="space-y-4">
-          <h3 className="text-lg font-bold">5. ¿Alguna indicación adicional?</h3>
+          <h3 className="text-lg font-bold">
+            5. ¿Alguna indicación adicional?
+          </h3>
           <textarea
             className="w-full h-24 p-3 rounded bg-white backdrop-blur-md text-black dark:bg-black/40 dark:text-white"
             placeholder="Escríbelo aquí..."
@@ -360,20 +408,24 @@ function ReservaCliente() {
           />
 
           {/* Paso 6: Mesa */}
-          <h3 className="text-lg font-bold pt-2">6. ¿En qué mesa deseas sentarte?</h3>
+          <h3 className="text-lg font-bold pt-2">
+            6. ¿En qué mesa deseas sentarte?
+          </h3>
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             {MESAS.map((mesa) => {
               const ocupadas = obtenerMesasOcupadas();
               const estaOcupada = ocupadas.includes(mesa);
               const esSeleccionada = mesaSeleccionada === mesa;
 
-              let clase = "px-4 py-2 rounded-lg font-semibold text-sm transition ";
+              let clase =
+                "px-4 py-2 rounded-lg font-semibold text-sm transition ";
               if (estaOcupada) {
                 clase += "bg-red-600 text-white cursor-not-allowed";
               } else if (esSeleccionada) {
                 clase += "bg-green-400 text-black";
               } else {
-                clase += "bg-green-700 hover:bg-green-600 text-white cursor-pointer";
+                clase +=
+                  "bg-green-700 hover:bg-green-600 text-white cursor-pointer";
               }
 
               return (
