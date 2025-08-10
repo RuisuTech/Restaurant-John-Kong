@@ -134,7 +134,7 @@ function PanelControl() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-24">
-        <h1 className="text-3xl font-bold mb-6 text-center">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">
           Panel de Control
         </h1>
 
@@ -159,7 +159,7 @@ function PanelControl() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white/80 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-xl p-4 mb-8 shadow-md w-full max-w-4xl mx-auto text-center">
+        <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-xl p-4 mb-8 shadow-md w-full max-w-4xl mx-auto text-center">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex flex-col">
               <label

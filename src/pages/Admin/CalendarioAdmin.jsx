@@ -79,17 +79,17 @@ function CalendarioReservas() {
       <BarraUsuario mostrarVolver />
 
       <div className="max-w-5xl mx-auto p-4 sm:px-6 md:px-10 py-24">
-        <h1 className="text-3xl font-bold mb-2 text-center">
+        <h1 className="text-3xl font-bold mb-2 text-center text-white">
           Calendario de Reservas
         </h1>
-        <h2 className="text-xl font-semibold text-center mb-6">
+        <h2 className="text-xl font-semibold text-center mb-6 text-white">
           {mesActual.toLocaleString("es-ES", {
             month: "long",
             year: "numeric",
           })}
         </h2>
 
-        <div className="flex justify-center gap-4 mb-4 flex-wrap">
+        <div className="flex justify-center gap-4 mb-4 flex-wrap text-white">
           {["Pendiente", "Confirmada", "Completada", "Cancelada"].map(
             (estado, i) => (
               <div key={i} className="flex items-center gap-2">

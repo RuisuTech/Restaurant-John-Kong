@@ -14,7 +14,7 @@ function Footer() {
       }}
     >
       <span className="text-sm opacity-80">
-        © {new Date().getFullYear()} Mi Aplicación. Todos los derechos reservados.
+        © {new Date().getFullYear()} John Kong. Todos los derechos reservados.
       </span>
       <span className="text-sm">Versión 1.0.0</span>
     </footer>

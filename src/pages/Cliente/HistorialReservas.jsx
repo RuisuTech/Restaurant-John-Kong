@@ -122,7 +122,7 @@ function HistorialReservas() {
     <Fondo imageUrl="/fondo.webp" className="px-0">
       <BarraUsuario mostrarVolver />
       <div className="w-full min-h-screen pt-20 pb-6 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 text-white">
           Historial de Reservas
         </h2>
 
