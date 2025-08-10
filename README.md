@@ -20,13 +20,11 @@ npm install
 Este proyecto utiliza funciones API serverless (en `/api`) que **requieren `vercel dev` para ejecutarse localmente**. Por tanto, usa:
 
 ```bash
-vercel dev
+npm run dev
 ```
 
 Y luego abre tu navegador en:  
-👉 **http://localhost:3000** (u otro puerto que indique la consola)
-
-> ⚠️ No uses `npm run dev` si estás usando funciones API, ya que Vite no las ejecutará correctamente.
+👉 **http://localhost:5173* (u otro puerto que indique la consola)
 
 ## 4. Estructura de carpetas (abreviada)
 
