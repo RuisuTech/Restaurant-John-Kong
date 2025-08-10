@@ -7,19 +7,29 @@ function Horarios({
   onSelect,
   columnas = 3,
   horasDisponibles = [],
-  conteoMesasPorHora = {}, // <-- nuevo prop
+  conteoMesasPorHora = {},
 }) {
   const [seleccionado, setSeleccionado] = useState(null);
 
   useEffect(() => {
-    setSeleccionado(null); // Limpiar cuando cambia fecha o tipo
+    setSeleccionado(null);
   }, [tipo, fecha]);
 
   const seleccionarHora = (hora) => {
     const ocupadas = conteoMesasPorHora[hora] || 0;
     const todasMesasOcupadas = ocupadas >= 6;
 
-    if (!todasMesasOcupadas) {
+    const horaActual = new Date().getHours();
+    const esHoy =
+      fecha &&
+      fecha.getDate() === new Date().getDate() &&
+      fecha.getMonth() === new Date().getMonth() &&
+      fecha.getFullYear() === new Date().getFullYear();
+
+    const horaNum = parseInt(hora.split(":")[0], 10);
+    const horaPasada = esHoy && horaNum <= horaActual;
+
+    if (!todasMesasOcupadas && !horaPasada) {
       setSeleccionado(hora);
       onSelect?.(hora);
     }
@@ -33,11 +43,21 @@ function Horarios({
         {horasDisponibles.map((hora) => {
           const ocupadas = conteoMesasPorHora[hora] || 0;
           const todasMesasOcupadas = ocupadas >= 6;
+
+          const esHoy =
+            fecha &&
+            fecha.getDate() === new Date().getDate() &&
+            fecha.getMonth() === new Date().getMonth() &&
+            fecha.getFullYear() === new Date().getFullYear();
+
+          const horaNum = parseInt(hora.split(":")[0], 10);
+          const horaPasada = esHoy && horaNum <= new Date().getHours();
+
           const esActivo = seleccionado === hora;
 
           let clases = `px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold text-center transition `;
 
-          if (todasMesasOcupadas) {
+          if (todasMesasOcupadas || horaPasada) {
             clases += "bg-red-600 text-white cursor-not-allowed";
           } else if (esActivo) {
             clases += "bg-green-400 text-black";

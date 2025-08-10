@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
-// Calendario interactivo para seleccionar una fecha,
-// deshabilita las que estén completamente ocupadas (según el tipo y hora)
+// Calendario interactivo para seleccionar una fecha
 function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
   const hoy = new Date();
   const TOTAL_MESAS = 6;
@@ -12,7 +11,6 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
 
   const diasSemana = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
-  // Horarios disponibles según tipo
   const obtenerHorasDisponibles = () => {
     if (tipo === "almuerzo") {
       return Array.from({ length: 6 }, (_, i) => `${11 + i}:00`);
@@ -25,7 +23,6 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
 
   const horasEsperadas = obtenerHorasDisponibles();
 
-  // Días del mes actual para renderizar
   const obtenerDiasDelMes = () => {
     const year = mesActual.getFullYear();
     const month = mesActual.getMonth();
@@ -41,12 +38,10 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
     return dias;
   };
 
-  // Formatea fecha a yyyy-mm-dd
   const formatear = (date) => date.toISOString().split("T")[0];
 
-  // Devuelve un Set de fechas que están completamente ocupadas
   const obtenerFechasCompletamenteReservadas = () => {
-    const mapa = new Map(); // { fecha: { hora: Set<mesas> } }
+    const mapa = new Map();
 
     reservas.forEach((r) => {
       if (r.tipo !== tipo || r.estado !== "confirmada") return;
@@ -92,6 +87,14 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
     date.getMonth() === hoy.getMonth() &&
     date.getFullYear() === hoy.getFullYear();
 
+  // 📌 Función para saber si una fecha ya pasó
+  const esFechaPasada = (date) => {
+    if (!date) return false;
+    const soloFecha = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const soloHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    return soloFecha < soloHoy;
+  };
+
   const cambiarMes = (inc) => {
     const nuevo = new Date(
       mesActual.getFullYear(),
@@ -101,14 +104,13 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
     setMesActual(nuevo);
   };
 
-  // Contar días bloqueados del mes actual
   const diasDisponibles = dias.filter(
-    (d) => d && !fechasBloqueadas.has(formatear(d))
+    (d) => d && !fechasBloqueadas.has(formatear(d)) && !esFechaPasada(d)
   ).length;
 
   return (
     <div className="text-center bg-white/10 dark:bg-black/60 backdrop-blur-sm p-4 rounded-lg w-1/2">
-      {/* Encabezado del mes */}
+      {/* Encabezado */}
       <div className="flex justify-between items-center mb-3 sm:mb-4">
         <button
           onClick={() => cambiarMes(-1)}
@@ -141,12 +143,14 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
       <div className="grid grid-cols-7 gap-1 text-xs sm:text-sm">
         {dias.map((day, i) => {
           const isSelected = fecha?.toDateString() === day?.toDateString();
-          const isDisabled = day && fechasBloqueadas.has(formatear(day));
+          const isDisabled =
+            day &&
+            (fechasBloqueadas.has(formatear(day)) || esFechaPasada(day));
 
           return (
             <div
               key={i}
-              title={isDisabled ? "Sin disponibilidad" : ""}
+              title={isDisabled ? "No disponible" : ""}
               className={`aspect-square flex items-center justify-center rounded-full cursor-pointer transition
                 ${
                   !day
@@ -169,7 +173,7 @@ function CalendarioReserva({ fecha, setFecha, reservas = [], tipo }) {
         })}
       </div>
 
-      {/* Contador de fechas disponibles */}
+      {/* Contador */}
       <p className="mt-3 text-xs sm:text-sm text-white/80">
         Días disponibles este mes:{" "}
         <span className="font-semibold">{diasDisponibles}</span> de{" "}
