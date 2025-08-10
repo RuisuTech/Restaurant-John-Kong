@@ -17,7 +17,6 @@ npm install
 ```
 
 ## 3. Ejecución en modo desarrollo
-Este proyecto utiliza funciones API serverless (en `/api`) que **requieren `vercel dev` para ejecutarse localmente**. Por tanto, usa:
 
 ```bash
 npm run dev
