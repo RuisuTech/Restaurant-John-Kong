@@ -35,7 +35,7 @@ function BarraUsuario({ mostrarVolver = false }) {
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded flex items-center gap-2 text-sm sm:text-base"
           >
             <FiArrowLeft />
-            Volver
+            <span className="sm:inline-block hidden">Volver</span> 
           </button>
         )}
 
@@ -44,7 +44,7 @@ function BarraUsuario({ mostrarVolver = false }) {
           onClick={cerrarSesion}
           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2 text-sm sm:text-base"
         >
-          Cerrar sesión
+          <span className="sm:inline-block hidden">Cerrar sesión</span>
           <FiLogOut />
         </button>
       </div>

@@ -1,6 +1,5 @@
 // PanelControl.jsx
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Fondo from "../../components/Fondo";
 import ToggleTema from "../../components/ToggleTema";
 import Boton from "../../components/Boton";
@@ -12,7 +11,6 @@ function PanelControl() {
   const [estadoFiltro, setEstadoFiltro] = useState("todas");
   const [fechaFiltro, setFechaFiltro] = useState("");
   const [busquedaUsuario, setBusquedaUsuario] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const cargar = async () => {
@@ -143,7 +141,7 @@ function PanelControl() {
           {Object.entries(resumen).map(([k, v]) => (
             <div
               key={k}
-              className={`rounded-xl p-4 text-center text-white ${
+              className={`rounded-xl p-2 md:p-4 text-center text-white ${
                 {
                   hoy: "bg-indigo-600",
                   completadas: "bg-green-600",
@@ -152,8 +150,8 @@ function PanelControl() {
                 }[k]
               }`}
             >
-              <h2 className="text-lg font-semibold capitalize">{k}</h2>
-              <p className="text-2xl font-bold">{v}</p>
+              <h2 className="md:text-lg font-semibold capitalize">{k}</h2>
+              <p className="md:text-2xl font-bold">{v}</p>
             </div>
           ))}
         </div>
