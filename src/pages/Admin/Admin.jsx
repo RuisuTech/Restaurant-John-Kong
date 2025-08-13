@@ -16,7 +16,7 @@ function Admin() {
       <ToggleTema />
 
       <section className="flex items-center justify-center min-h-screen px-4">
-        <div className="w-full max-w-xl text-left text-white dark:text-white">
+        <div className="w-full max-w-xl md:max-w-3xl lg:max-w-5xl text-left text-white dark:text-white">
           <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-6 font-mulish">
             ¡Hola {usuario?.nombre || "admin"}! 👋
           </h1>

@@ -29,7 +29,6 @@ function ReservaCliente() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
 
-  // Mesas del local (úsalas coherentes con las que muestras)
   const MESAS = ["M1", "M2", "M3", "M4", "M5", "M6"];
   const TOTAL_MESAS = MESAS.length;
 
@@ -69,9 +68,9 @@ function ReservaCliente() {
     }
 
     // 📌 Validación: Límite de personas
-    if (cantidadPersonas < 1 || cantidadPersonas > 50) {
+    if (cantidadPersonas < 1 || cantidadPersonas > 20) {
       mostrarAlerta(
-        "El número de personas debe estar entre 1 y 50.",
+        "El número de personas debe estar entre 1 y 20.",
         "warning"
       );
       return;
@@ -215,11 +214,21 @@ function ReservaCliente() {
       .map((r) => r.mesa);
   };
 
-  // Cuando cambia la fecha o las reservas, calculamos qué servicios tienen horas libres.
-  // Si solo queda uno, lo seleccionamos automáticamente.
+  // 1️⃣ Seleccionar por hora actual si no hay fecha seleccionada
   useEffect(() => {
     if (!fechaSeleccionada) {
-      setTipo(null);
+      const horaActual = new Date().getHours();
+      if (horaActual < 15) {
+        setTipo("almuerzo");
+      } else {
+        setTipo("cena");
+      }
+    }
+  }, [fechaSeleccionada]);
+
+  // 2️⃣ Lógica original cuando hay fecha seleccionada
+  useEffect(() => {
+    if (!fechaSeleccionada) {
       setHoraSeleccionada(null);
       return;
     }
@@ -232,12 +241,11 @@ function ReservaCliente() {
       setTipo(disponibles[0]);
       setHoraSeleccionada(null);
     } else {
-      // si hay 2 o 0, deseleccionar tipo para que el usuario elija (o mostrar mensaje si 0)
       setTipo(null);
       setHoraSeleccionada(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fechaSeleccionada, reservas]); // recalcula al cambiar fecha o reservas
+  }, [fechaSeleccionada, reservas]);
 
   return (
     <Fondo imageUrl={fondo}>
@@ -290,7 +298,7 @@ function ReservaCliente() {
 
           {/* Paso 2: Personas */}
           <h3 className="text-lg font-bold pt-2">
-            2. ¿Cuántas personas vendrán?
+            2. ¿Cuántas personas vendrán? Limite de 20.
           </h3>
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             {[...Array(10)].map((_, i) => (
@@ -321,7 +329,7 @@ function ReservaCliente() {
                 const valor = e.target.value;
                 if (
                   !valor ||
-                  (parseInt(valor, 10) >= 11 && parseInt(valor, 10) <= 50)
+                  (parseInt(valor, 10) >= 11 && parseInt(valor, 10) <= 20)
                 ) {
                   setPersonalizado(valor);
                   setPersonas(null);

@@ -4,7 +4,7 @@ import Fondo from "../../components/Fondo";
 import ToggleTema from "../../components/ToggleTema";
 import Boton from "../../components/Boton";
 import BarraUsuario from "../../components/BarraUsuario";
-import { obtenerReservas, actualizarReserva } from "../../utils/api";
+import { obtenerReservas, actualizarEstadoReserva } from "../../utils/api";
 
 function PanelControl() {
   const [reservas, setReservas] = useState([]);
@@ -27,7 +27,8 @@ function PanelControl() {
 
   const cambiarEstado = async (id, nuevoEstado) => {
     try {
-      const actualizada = await actualizarReserva(id, { estado: nuevoEstado });
+      const actualizada = await actualizarEstadoReserva(id, nuevoEstado);
+      console.log("Reserva actualizada:", actualizada); // <-- Verificar aquí
       setReservas((prev) => prev.map((r) => (r.id === id ? actualizada : r)));
     } catch (error) {
       console.error("Error al actualizar reserva:", error);
@@ -157,9 +158,10 @@ function PanelControl() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-xl p-4 mb-8 shadow-md w-full max-w-4xl mx-auto text-center">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex flex-col">
+        <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-xl p-4 mb-8 shadow-md w-full max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-wrap sm:flex-row items-stretch sm:items-end justify-center gap-4">
+            {/* Fecha */}
+            <div className="flex flex-col w-full sm:w-auto">
               <label
                 htmlFor="filtro-fecha"
                 className="text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200"
@@ -169,12 +171,14 @@ function PanelControl() {
               <input
                 id="filtro-fecha"
                 type="date"
-                className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800"
+                className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={fechaFiltro}
                 onChange={(e) => setFechaFiltro(e.target.value)}
               />
             </div>
-            <div className="flex flex-col">
+
+            {/* Usuario */}
+            <div className="flex flex-col w-full sm:w-auto">
               <label
                 htmlFor="filtro-usuario"
                 className="text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200"
@@ -184,7 +188,8 @@ function PanelControl() {
               <input
                 type="text"
                 id="filtro-usuario"
-                className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800"
+                placeholder="Nombre o correo"
+                className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={busquedaUsuario}
                 onChange={(e) =>
                   setBusquedaUsuario(e.target.value.toLowerCase())
@@ -192,7 +197,8 @@ function PanelControl() {
               />
             </div>
 
-            <div className="flex flex-col">
+            {/* Estado */}
+            <div className="flex flex-col w-full sm:w-auto">
               <label
                 htmlFor="filtro-estado"
                 className="text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200"
@@ -201,7 +207,7 @@ function PanelControl() {
               </label>
               <select
                 id="filtro-estado"
-                className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800"
+                className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={estadoFiltro}
                 onChange={(e) => setEstadoFiltro(e.target.value)}
               >
@@ -216,13 +222,15 @@ function PanelControl() {
               </select>
             </div>
 
-            <div className="flex flex-col sm:mt-6">
+            {/* Botón limpiar */}
+            <div className="flex flex-col w-full sm:w-auto sm:self-end">
               <button
                 onClick={() => {
                   setFechaFiltro("");
+                  setBusquedaUsuario("");
                   setEstadoFiltro("todas");
                 }}
-                className="mt-4 sm:mt-0 px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium text-black dark:text-white transition"
+                className="w-full px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium text-black dark:text-white transition"
               >
                 Limpiar filtros
               </button>
@@ -252,25 +260,42 @@ function PanelControl() {
 }
 
 function SeccionTabla({ titulo, lista, renderEstado }) {
-  if (lista.length === 0) return null;
+  if (!lista?.length) return null;
+
+  const columnas = [
+    "Fecha",
+    "Cliente",
+    "Hora",
+    "Personas",
+    "Comentario",
+    "Acciones",
+    "Mesa",
+    "Tipo",
+    "Estado",
+    "Fecha Confirmación",
+  ];
+
+  const formatearFechaConfirmacion = (fecha) => {
+    if (!fecha) return "-";
+    return new Date(fecha).toLocaleString("es-PE", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+  };
 
   return (
     <>
       <h2 className="text-xl font-bold mb-2">{titulo}</h2>
-      <div className="overflow-x-auto mb-10">
+      {/* Contenedor con scroll horizontal solo en escritorio */}
+      <div className="hidden md:block overflow-x-auto mb-10">
         <table className="w-full min-w-[800px] text-sm text-left">
           <thead className="bg-gray-200 dark:bg-gray-700">
             <tr>
-              <th className="px-4 py-2">Fecha</th>
-              <th className="px-4 py-2">Cliente</th>
-              <th className="px-4 py-2">Hora</th>
-              <th className="px-4 py-2">Personas</th>
-              <th className="px-4 py-2">Comentario</th>
-              <th className="px-4 py-2">Acciones</th>
-              <th className="px-4 py-2">Mesa</th>
-              <th className="px-4 py-2">Tipo</th>
-              <th className="px-4 py-2">Estado</th>
-              <th className="px-4 py-2">Fecha Confirmación</th>
+              {columnas.map((col) => (
+                <th key={col} className="px-4 py-2 whitespace-nowrap">
+                  {col}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-black/60 divide-y divide-gray-300 dark:divide-gray-600">
@@ -290,13 +315,51 @@ function SeccionTabla({ titulo, lista, renderEstado }) {
                   <td className="px-4 py-2 capitalize">{r.tipo || "-"}</td>
                   <td className="px-4 py-2 capitalize">{r.estado}</td>
                   <td className="px-4 py-2">
-                    {r.fechaConfirmacion?.split("T")[0] || "-"}
+                    {formatearFechaConfirmacion(r.fechaConfirmacion)}
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Vista móvil como tarjetas */}
+      <div className="md:hidden space-y-4">
+        {lista.map((r, index) => {
+          const key = r.id || `${r.fecha}-${r.hora}-${index}`;
+          return (
+            <div
+              key={key}
+              className="bg-white dark:bg-black/60 shadow rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+            >
+              {columnas.map((col, i) => {
+                const valores = [
+                  r.fecha,
+                  r.usuario?.nombre || "Desconocido",
+                  r.hora,
+                  r.personas,
+                  r.comentario || "-",
+                  renderEstado(r),
+                  r.mesa,
+                  r.tipo || "-",
+                  r.estado,
+                  formatearFechaConfirmacion(r.fechaConfirmacion),
+                ];
+                return (
+                  <div key={col} className="flex justify-between py-1">
+                    <span className="font-medium text-gray-500 dark:text-gray-400">
+                      {col}
+                    </span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {valores[i]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </>
   );

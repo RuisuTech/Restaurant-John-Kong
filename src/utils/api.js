@@ -65,12 +65,19 @@ export async function eliminarReserva(id) {
 
 // ✅ Cambiar el estado de una reserva
 export async function actualizarEstadoReserva(id, nuevoEstado) {
+  const payload = { estado: nuevoEstado };
+
+  // Si el estado es "confirmada", añadimos la fecha actual
+  if (nuevoEstado.toLowerCase() === "confirmada") {
+    payload.fechaConfirmacion = new Date().toISOString();
+  }
+
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ estado: nuevoEstado }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
@@ -80,6 +87,7 @@ export async function actualizarEstadoReserva(id, nuevoEstado) {
 
   return await res.json();
 }
+
 
 // ✅ Crear nuevo usuario (login clásico)
 export const crearUsuario = async (usuario) => {
