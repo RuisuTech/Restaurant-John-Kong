@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiArrowLeft } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 function BarraUsuario({ mostrarVolver = false }) {
   const navigate = useNavigate();

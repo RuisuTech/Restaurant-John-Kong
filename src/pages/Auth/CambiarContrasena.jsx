@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Fondo from "../components/Fondo";
-import CajaContenido from "../components/CajaContenido";
-import Boton from "../components/Boton";
-import fondo from "../assets/fondo.webp";
-import ModalBase from "../components/ModalBase";
+import Fondo from "../../components/layout/Fondo";
+import CajaContenido from "../../components/ui/CajaContenido";
+import Boton from "../../components/ui/Boton";
+import fondo from "../../assets/fondo.webp";
+import ModalBase from "../../components/ui/ModalBase";
 
 function CambiarContrasena() {
   const [nueva, setNueva] = useState("");

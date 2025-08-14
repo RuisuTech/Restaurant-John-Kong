@@ -1,8 +1,8 @@
 // Importación de componentes reutilizables y recursos
-import Fondo from "../components/Fondo"; // Componente que aplica una imagen de fondo a la página
-import Boton from "../components/Boton"; // Botón personalizado reutilizable
+import Fondo from "../components/layout/Fondo"; // Componente que aplica una imagen de fondo a la página
+import Boton from "../components/ui/Boton"; // Botón personalizado reutilizable
 import fondoInicio from "../assets/fondo.webp"; // Imagen de fondo de la página de inicio
-import CajaContenido from "../components/CajaContenido"; // Contenedor visual con título y descripción
+import CajaContenido from "../components/ui/CajaContenido"; // Contenedor visual con título y descripción
 import { useAuth } from "../context/AuthContext"; // 👈 Importar hook de autenticación
 
 function Inicio() {

@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
-import Fondo from "../components/Fondo";
-import CajaContenido from "../components/CajaContenido";
-import ModalExito from "../components/ModalExito";
-import Boton from "../components/Boton";
-import LinkSpan from "../components/LinkSpan";
-import fondoRegistro from "../assets/fondo.webp";
-import { crearUsuario, obtenerUsuarios } from "../utils/api";
+import Fondo from "../../components/layout/Fondo";
+import CajaContenido from "../../components/ui/CajaContenido";
+import ModalExito from "../../components/ui/ModalExito";
+import Boton from "../../components/ui/Boton";
+import LinkSpan from "../../components/ui/LinkSpan";
+import fondoRegistro from "../../assets/fondo.webp";
+import { crearUsuario, obtenerUsuarios } from "../../utils/api";
 
 function Registro() {
   const [nombre, setNombre] = useState("");

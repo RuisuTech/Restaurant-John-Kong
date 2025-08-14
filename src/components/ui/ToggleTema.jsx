@@ -1,5 +1,5 @@
 // ToggleTema.jsx
-import { useTema } from "../hooks/useTema";
+import { useTema } from "../../hooks/useTema";
 
 function ToggleTema() {
   const { modo, alternar } = useTema();

@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import PantallaCargando from "../components/PantallaCargando";
+import PantallaCargando from "../components/ui/PantallaCargando";
+
 
 function RutaPrivada({ children, rolRequerido }) {
   const { usuario, cargando } = useAuth();

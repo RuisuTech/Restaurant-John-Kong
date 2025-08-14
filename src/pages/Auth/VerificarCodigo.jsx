@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Componentes personalizados y recursos
-import Fondo from "../components/Fondo";
-import CajaContenido from "../components/CajaContenido";
-import Boton from "../components/Boton";
-import fondo from "../assets/fondo.webp";
+import Fondo from "../../components/layout/Fondo";
+import CajaContenido from "../../components/ui/CajaContenido";
+import Boton from "../../components/ui/Boton";
+import fondo from "../../assets/fondo.webp";
 
 function VerificarCodigo() {
   const [codigo, setCodigo] = useState("");

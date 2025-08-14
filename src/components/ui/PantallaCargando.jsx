@@ -1,7 +1,7 @@
 // src/components/PantallaCargando.jsx
-import Fondo from "./Fondo";
-import fondoInicio from "../assets/fondo.webp";
-import CajaContenido from "./CajaContenido";
+import Fondo from "../layout/Fondo";
+import fondoInicio from "../../assets/fondo.webp";
+import CajaContenido from "../ui/CajaContenido";
 
 function PantallaCargando() {
   return (

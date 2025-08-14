@@ -1,25 +1,34 @@
 // App.jsx
 import { Routes, Route } from "react-router-dom";
 
+// Páginas principales
 import Inicio from "./pages/Inicio";
-import Login from "./pages/Login";
-import Registro from "./pages/Registro";
-import Recuperar from "./pages/Recuperar";
-import VerificarCodigo from "./pages/VerificarCodigo";
-import CambiarContrasena from "./pages/CambiarContrasena";
+
+// Páginas de autenticación
+import Login from "./pages/Auth/Login";
+import Registro from "./pages/Auth/Registro";
+import Recuperar from "./pages/Auth/Recuperar";
+import VerificarCodigo from "./pages/Auth/VerificarCodigo";
+import CambiarContrasena from "./pages/Auth/CambiarContrasena";
+
+// Páginas del cliente
 import ReservaCliente from "./pages/Cliente/ReservaCliente";
 import ConfirmarReserva from "./pages/Cliente/ConfirmarReserva";
 import HistorialReservas from "./pages/Cliente/HistorialReservas";
-
-import Admin from "./pages/Admin/Admin";
 import Cliente from "./pages/Cliente/Cliente";
-import RutaPrivada from "./routes/RutaPrivada";
-import ToggleTema from "./components/ToggleTema";
+
+// Páginas de administración
+import Admin from "./pages/Admin/Admin";
 import PanelControl from "./pages/Admin/PanelControl";
 import CalendarioAdmin from "./pages/Admin/CalendarioAdmin";
 
+// Rutas y utilidades
+import RutaPrivada from "./routes/RutaPrivada";
+import ToggleTema from "./components/ui/ToggleTema";
+import Footer from "./components/layout/Footer";
+
+// Página de error
 import Pagina404 from "./pages/Pagina404";
-import Footer from "./components/Footer";
 
 function App() {
   return (

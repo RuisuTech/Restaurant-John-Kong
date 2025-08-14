@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { loginConGoogle, obtenerUsuarios } from "../utils/api";
+import { useAuth } from "../../context/AuthContext";
+import { loginConGoogle, obtenerUsuarios } from "../../utils/api";
 
-import logo from "../assets/logo.png";
-import logoWhite from "../assets/logo-white.png";
-import fondoLogin from "../assets/fondo.webp";
-import Fondo from "../components/Fondo";
-import CajaContenido from "../components/CajaContenido";
-import Boton from "../components/Boton";
-import LinkSpan from "../components/LinkSpan";
-import ToggleTema from "../components/ToggleTema";
-import { useTema } from "../hooks/useTema";
+import logo from "../../assets/logo.png";
+import logoWhite from "../../assets/logo-white.png";
+import fondoLogin from "../../assets/fondo.webp";
+
+// Componentes
+import Fondo from "../../components/layout/Fondo";
+import CajaContenido from "../../components/ui/CajaContenido";
+import Boton from "../../components/ui/Boton";
+import LinkSpan from "../../components/ui/LinkSpan";
+import ToggleTema from "../../components/ui/ToggleTema";
+
+// Hooks
+import { useTema } from "../../hooks/useTema";
 
 function Login() {
   const navigate = useNavigate();

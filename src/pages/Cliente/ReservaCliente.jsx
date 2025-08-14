@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CalendarioReserva from "../../components/CalendarioReserva";
-import Horarios from "../../components/Horarios";
-import Fondo from "../../components/Fondo";
-import CajaContenido from "../../components/CajaContenido";
-import Boton from "../../components/Boton";
-import ModalAlerta from "../../components/ModalAlerta";
+
+import CalendarioReserva from "../../components/layout/CalendarioReserva";
+import Horarios from "../../components/reservas/Horarios";
+import Fondo from "../../components/layout/Fondo";
+import CajaContenido from "../../components/ui/CajaContenido";
+import Boton from "../../components/ui/Boton";
+import ModalAlerta from "../../components/ui/ModalAlerta";
+import BarraUsuario from "../../components/layout/BarraUsuario";
+
 import fondo from "../../assets/fondo.webp";
-import BarraUsuario from "../../components/BarraUsuario";
 import { obtenerReservas, crearReserva } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
 

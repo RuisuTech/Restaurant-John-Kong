@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Fondo from "../../components/Fondo";
-import BarraUsuario from "../../components/BarraUsuario";
+
+import Fondo from "../../components/layout/Fondo";
+import BarraUsuario from "../../components/layout/BarraUsuario";
+
 import { useAuth } from "../../context/AuthContext";
 import { obtenerReservas, actualizarEstadoReserva } from "../../utils/api";
+
 
 function HistorialReservas() {
   const [reservasUsuario, setReservasUsuario] = useState([]);

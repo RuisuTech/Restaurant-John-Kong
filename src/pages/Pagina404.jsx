@@ -1,8 +1,8 @@
 // Importación de componentes reutilizables y recursos
-import Fondo from "../components/Fondo";
-import Boton from "../components/Boton";
+import Fondo from "../components/layout/Fondo";
+import Boton from "../components/ui/Boton";
 import fondoInicio from "../assets/fondo.webp";
-import CajaContenido from "../components/CajaContenido";
+import CajaContenido from "../components/ui/CajaContenido";
 
 function Pagina404() {
   return (

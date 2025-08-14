@@ -1,9 +1,9 @@
 // PanelControl.jsx
 import { useEffect, useState } from "react";
-import Fondo from "../../components/Fondo";
-import ToggleTema from "../../components/ToggleTema";
-import Boton from "../../components/Boton";
-import BarraUsuario from "../../components/BarraUsuario";
+import Fondo from "../../components/layout/Fondo";
+import ToggleTema from "../../components/ui/ToggleTema";
+import Boton from "../../components/ui/Boton";
+import BarraUsuario from "../../components/layout/BarraUsuario";
 import { obtenerReservas, actualizarEstadoReserva } from "../../utils/api";
 
 function PanelControl() {

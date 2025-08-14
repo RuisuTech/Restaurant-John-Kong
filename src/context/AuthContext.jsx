@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup } from "../firebase";
 import { auth, googleProvider } from "../firebase";
 import { crearUsuario } from "../utils/api";
 

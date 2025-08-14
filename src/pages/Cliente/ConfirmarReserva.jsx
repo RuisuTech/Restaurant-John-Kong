@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import Fondo from "../../components/Fondo";
-import CajaContenido from "../../components/CajaContenido";
-import Boton from "../../components/Boton";
-import ModalExito from "../../components/ModalExito";
-import BarraUsuario from "../../components/BarraUsuario";
+
+import Fondo from "../../components/layout/Fondo";
+import CajaContenido from "../../components/ui/CajaContenido";
+import Boton from "../../components/ui/Boton";
+import ModalExito from "../../components/ui/ModalExito";
+import BarraUsuario from "../../components/layout/BarraUsuario";
+
 import fondo from "../../assets/fondo.webp";
 import { obtenerReservas, crearReserva } from "../../utils/api";
 

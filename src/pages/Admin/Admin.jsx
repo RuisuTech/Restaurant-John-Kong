@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import Fondo from "../../components/Fondo";
-import Boton from "../../components/Boton";
-import ToggleTema from "../../components/ToggleTema";
-import BarraUsuario from "../../components/BarraUsuario";
+import Fondo from "../../components/layout/Fondo";
+import Boton from "../../components/ui/Boton";
+import ToggleTema from "../../components/ui/ToggleTema";
+import BarraUsuario from "../../components/layout/BarraUsuario";
 import { useAuth } from "../../context/AuthContext";
 import fondoAdmin from "../../assets/fondo.webp";
 

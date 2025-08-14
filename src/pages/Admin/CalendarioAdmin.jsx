@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import Fondo from "../../components/Fondo";
-import Boton from "../../components/Boton";
-import BarraUsuario from "../../components/BarraUsuario";
+import Fondo from "../../components/layout/Fondo";
+import Boton from "../../components/ui/Boton";
+import BarraUsuario from "../../components/layout/BarraUsuario";
 import { obtenerReservas } from "../../utils/api";
 
 function CalendarioReservas() {
