@@ -2,7 +2,7 @@
 function ModalBase({ icono, iconoColor, titulo, descripcion, children }) {
   return (
     // Capa de fondo semitransparente y desenfocada
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-white/20 backdrop-blur-sm px-4">
+    <div id="formulario-reserva" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-white/20 backdrop-blur-sm px-4">
       
       {/* Contenedor del modal */}
       <div className="bg-white dark:bg-black/80 rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center transition-colors duration-300 border dark:border-white/20">

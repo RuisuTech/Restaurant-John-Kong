@@ -31,7 +31,7 @@ function ReservaCliente() {
   });
 
   const navigate = useNavigate();
-  const { usuario } = useAuth();
+  const { usuario } = useAuth()  || {};
 
   const MESAS = ["M1", "M2", "M3", "M4", "M5", "M6"];
 

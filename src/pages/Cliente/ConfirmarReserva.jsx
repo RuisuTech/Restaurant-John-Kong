@@ -14,7 +14,7 @@ import { obtenerReservas, crearReserva } from "../../utils/api"
 
 function ConfirmarReserva() {
   const navigate = useNavigate()
-  const { usuario } = useAuth()
+  const { usuario } = useAuth()  || {}
 
   const [reserva, setReserva] = useState(null)
   const [reservaConfirmada, setReservaConfirmada] = useState(false)

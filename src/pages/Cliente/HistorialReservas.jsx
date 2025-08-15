@@ -14,7 +14,7 @@ function HistorialReservas() {
   const [filtroMesa, setFiltroMesa] = useState("todas")
   const [orden, setOrden] = useState("desc")
   const navigate = useNavigate()
-  const { usuario } = useAuth()
+  const { usuario } = useAuth()  || {}
 
   const obtener = useCallback(async () => {
     try {

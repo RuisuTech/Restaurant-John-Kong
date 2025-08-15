@@ -62,5 +62,5 @@ export function AuthProvider({ children }) {
 
 // Hook personalizado
 export function useAuth() {
-  return useContext(AuthContext);
+  return useContext(AuthContext)
 }

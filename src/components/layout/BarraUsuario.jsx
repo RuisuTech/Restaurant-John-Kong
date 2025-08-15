@@ -1,17 +1,17 @@
 // BarraUsuario.jsx
-import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiArrowLeft } from "react-icons/fi";
-import { FaUser } from "react-icons/fa";
-import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom"
+import { FiLogOut, FiArrowLeft } from "react-icons/fi"
+import { FaUser } from "react-icons/fa"
+import { useAuth } from "../../context/AuthContext"
 
 function BarraUsuario({ mostrarVolver = false }) {
-  const navigate = useNavigate();
-  const { usuario, logout } = useAuth();
+  const navigate = useNavigate()
+  const { usuario, logout } = useAuth() || {}
 
   const cerrarSesion = () => {
-    logout();
-    navigate("/login");
-  };
+    logout()
+    navigate("/login")
+  }
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 py-3 bg-black/30 backdrop-blur-sm shadow">
@@ -49,7 +49,7 @@ function BarraUsuario({ mostrarVolver = false }) {
         </button>
       </div>
     </div>
-  );
+  )
 }
 
-export default BarraUsuario;
+export default BarraUsuario

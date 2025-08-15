@@ -1,29 +1,29 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
-import Fondo from "../../components/layout/Fondo";
-import Boton from "../../components/ui/Boton";
-import fondoCliente from "../../assets/fondo.webp";
-import BarraUsuario from "../../components/layout/BarraUsuario";
-import { useAuth } from "../../context/AuthContext";
+import Fondo from "../../components/layout/Fondo"
+import Boton from "../../components/ui/Boton"
+import fondoCliente from "../../assets/fondo.webp"
+import BarraUsuario from "../../components/layout/BarraUsuario"
+import { useAuth } from "../../context/AuthContext"
 
 function Cliente() {
-  const navigate = useNavigate();
-  const { usuario } = useAuth();
+  const navigate = useNavigate()
+  const { usuario } = useAuth()  || {}
 
   // Redirige si no hay usuario autenticado
   useEffect(() => {
     if (!usuario) {
-      navigate("/login");
+      navigate("/login")
     }
-  }, [usuario, navigate]);
+  }, [usuario, navigate])
 
   const getSaludo = () => {
-    const hora = new Date().getHours();
-    if (hora < 12) return "¡Buenos días";
-    if (hora < 18) return "¡Buenas tardes";
-    return "¡Buenas noches";
-  };
+    const hora = new Date().getHours()
+    if (hora < 12) return "¡Buenos días"
+    if (hora < 18) return "¡Buenas tardes"
+    return "¡Buenas noches"
+  }
 
   return (
     <Fondo imageUrl={fondoCliente}>
@@ -67,7 +67,7 @@ function Cliente() {
         </div>
       </section>
     </Fondo>
-  );
+  )
 }
 
-export default Cliente;
+export default Cliente

@@ -6,7 +6,7 @@ import CajaContenido from "../components/ui/CajaContenido"; // Contenedor visual
 import { useAuth } from "../context/AuthContext"; // 👈 Importar hook de autenticación
 
 function Inicio() {
-  const { usuario } = useAuth(); // 👈 Obtener usuario actual
+  const { usuario } = useAuth()  || {}; // 👈 Obtener usuario actual
 
   const destino = usuario
     ? usuario.rol === "admin"
