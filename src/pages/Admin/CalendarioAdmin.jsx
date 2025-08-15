@@ -267,20 +267,6 @@ function CalendarioReservas() {
             })}
           </div>
         </div>
-
-        {/* Estadísticas del mes */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Object.entries(estadoColor).map(([estado, color]) => {
-            const count = reservas.filter(r => r.estado === estado).length
-            return (
-              <div key={estado} className="bg-white/20 rounded-lg p-4 text-center text-white">
-                <div className={`w-8 h-8 rounded-full ${color} mx-auto mb-2`}></div>
-                <div className="text-2xl font-bold">{count}</div>
-                <div className="text-sm capitalize">{estado}</div>
-              </div>
-            )
-          })}
-        </div>
       </div>
     </Fondo>
   )
