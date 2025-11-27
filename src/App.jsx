@@ -16,11 +16,18 @@ import ReservaCliente from "./pages/Cliente/ReservaCliente";
 import ConfirmarReserva from "./pages/Cliente/ConfirmarReserva";
 import HistorialReservas from "./pages/Cliente/HistorialReservas";
 import Cliente from "./pages/Cliente/Cliente";
+import EscanearMesa from "./pages/Cliente/EscanearMesa";
+import Menu from "./pages/Cliente/Menu";
+import { Carrito } from "./pages/Cliente/Carrito.jsx";
+
+import PagoSimulado from "./pages/Cliente/PagoSimulado";
+import EstadoPedido from "./pages/Cliente/EstadoPedido";
 
 // Páginas de administración
 import Admin from "./pages/Admin/Admin";
 import PanelControl from "./pages/Admin/PanelControl";
 import CalendarioAdmin from "./pages/Admin/CalendarioAdmin";
+import Cocina from "./pages/Admin/Cocina";
 
 // Rutas y utilidades
 import RutaPrivada from "./routes/RutaPrivada";
@@ -30,10 +37,17 @@ import Footer from "./components/layout/Footer";
 // Página de error
 import Pagina404 from "./pages/Pagina404";
 
+// ⬅️ IMPORTA EL HOOK
+import { useMesa } from "./hooks/useMesa";
+
+import Gracias from "./pages/Cliente/Gracias";
+
 function App() {
+  // ⬅️ USA EL HOOK AQUÍ (no borra nada, no rompe nada)
+  const mesa = useMesa();
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Contenido principal */}
       <main className="flex-grow">
         <Routes>
           {/* Rutas públicas */}
@@ -53,6 +67,7 @@ function App() {
               </RutaPrivada>
             }
           />
+
           <Route
             path="/confirmar-reserva"
             element={
@@ -61,6 +76,7 @@ function App() {
               </RutaPrivada>
             }
           />
+
           <Route
             path="/historial"
             element={
@@ -69,11 +85,67 @@ function App() {
               </RutaPrivada>
             }
           />
+
           <Route
             path="/cliente"
             element={
               <RutaPrivada rolRequerido="cliente">
                 <Cliente />
+              </RutaPrivada>
+            }
+          />
+
+          {/* Nuevas rutas del cliente: Mesa, Menú, Carrito, Pago, Pedido */}
+          <Route
+            path="/mesa"
+            element={
+              <RutaPrivada rolRequerido="cliente">
+                <EscanearMesa />
+              </RutaPrivada>
+            }
+          />
+
+          <Route
+            path="/menu"
+            element={
+              <RutaPrivada rolRequerido="cliente">
+                <Menu />
+              </RutaPrivada>
+            }
+          />
+
+          <Route
+            path="/carrito"
+            element={
+              <RutaPrivada rolRequerido="cliente">
+                <Carrito />
+              </RutaPrivada>
+            }
+          />
+
+          <Route
+            path="/pago"
+            element={
+              <RutaPrivada rolRequerido="cliente">
+                <PagoSimulado />
+              </RutaPrivada>
+            }
+          />
+
+          <Route
+            path="/pedido"
+            element={
+              <RutaPrivada rolRequerido="cliente">
+                <EstadoPedido />
+              </RutaPrivada>
+            }
+          />
+
+          <Route
+            path="/gracias"
+            element={
+              <RutaPrivada rolRequerido="cliente">
+                <Gracias />
               </RutaPrivada>
             }
           />
@@ -87,6 +159,7 @@ function App() {
               </RutaPrivada>
             }
           />
+
           <Route
             path="/admin/panel"
             element={
@@ -95,11 +168,21 @@ function App() {
               </RutaPrivada>
             }
           />
+
           <Route
             path="/admin/calendario"
             element={
               <RutaPrivada rolRequerido="admin">
                 <CalendarioAdmin />
+              </RutaPrivada>
+            }
+          />
+
+          <Route
+            path="/admin/cocina"
+            element={
+              <RutaPrivada rolRequerido="admin">
+                <Cocina />
               </RutaPrivada>
             }
           />

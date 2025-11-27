@@ -43,6 +43,13 @@ function Admin() {
               textColor="text-white dark:text-black"
               className="h-[50px] w-full"
             />
+            <Boton
+              texto="👩‍🍳 Panel de Cocina"
+              onClickOverride={() => navigate("/admin/cocina")}
+              bgColor="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-400 dark:hover:bg-yellow-500"
+              textColor="text-black dark:text-black"
+              className="h-[50px] w-full"
+            />
           </div>
         </div>
       </section>
